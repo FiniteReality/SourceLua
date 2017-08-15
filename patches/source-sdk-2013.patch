@@ -1,0 +1,29 @@
+diff --git a/mp/src/public/tier0/dbg.h b/mp/src/public/tier0/dbg.h
+index 5fa68adf..5425e2c5 100644
+--- a/mp/src/public/tier0/dbg.h
++++ b/mp/src/public/tier0/dbg.h
+@@ -567,7 +567,9 @@ public:
+ // of our complicated templates properly.  Use some preprocessor trickery
+ // to workaround this
+ #ifdef __GNUC__
+-	#define COMPILE_TIME_ASSERT( pred ) typedef int UNIQUE_ID[ (pred) ? 1 : -1 ]
++	//EDIT: use static_assert rather than this ugly hack
++	//#define COMPILE_TIME_ASSERT( pred ) typedef int UNIQUE_ID[ (pred) ? 1 : -1 ]
++	#define COMPILE_TIME_ASSERT( pred ) static_assert( pred, "Compile time assert constraint is not true: " #pred )
+ #else
+ 	#if _MSC_VER >= 1600
+ 	// If available use static_assert instead of weird language tricks. This
+diff --git a/mp/src/public/tier0/threadtools.h b/mp/src/public/tier0/threadtools.h
+index e5b720e2..f1f77f09 100644
+--- a/mp/src/public/tier0/threadtools.h
++++ b/mp/src/public/tier0/threadtools.h
+@@ -443,7 +443,8 @@ template <typename T>
+ class CInterlockedIntT
+ {
+ public:
+-	CInterlockedIntT() : m_value( 0 ) 				{ COMPILE_TIME_ASSERT( sizeof(T) == sizeof(long) ); }
++	// EDIT: change from == to <= in COMPILE_TIME_ASSERT
++	CInterlockedIntT() : m_value( 0 ) 				{ COMPILE_TIME_ASSERT( sizeof(T) <= sizeof(long) ); }
+ 	CInterlockedIntT( T value ) : m_value( value ) 	{}
+ 
+ 	T GetRaw() const				{ return m_value; }

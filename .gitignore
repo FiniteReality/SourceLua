@@ -1,0 +1,14 @@
+# vscode files
+.vscode/*
+
+# build files
+build/*
+*.obj
+*.o
+*.dll
+*.so
+*.a
+*.lib
+*.gch
+
+# TODO: expand this properly
