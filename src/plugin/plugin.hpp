@@ -6,12 +6,22 @@
  */
 
 #include <common/source.hpp>
+#include <thread/scheduler.hpp>
 
 namespace SourceLua
 {
     class Plugin : public IServerPluginCallbacks, public IGameEventListener
     {
         public:
+            Plugin();
+            Plugin(const Plugin&) = delete;
+            Plugin& operator=(const Plugin&) = delete;
+            Plugin(Plugin&&) = delete;
+            Plugin& operator=(Plugin&&) = delete;
+            ~Plugin() = default;
+
+            static Plugin* GetActiveInstance();
+
             bool Load(CreateInterfaceFn interfaceFactory,
                 CreateInterfaceFn gameServerFactory) override;
             void Unload() override;
@@ -57,13 +67,20 @@ namespace SourceLua
             int GetCommandIndex();
 
             const char* RunLuaString(const char* code);
+            #ifdef SOURCELUA_DEBUG
+            void CausePanic();
+            #endif /* SOURCELUA_DEBUG */
 
         private:
             int _commandIndex;
 
-            lua_State *L;
-            IVEngineServer* engine;
-            IGameEventManager2* eventManager;
+            lua_State* G;
+            std::unique_ptr<Scheduling::Scheduler> _scheduler;
+
+            IVEngineServer* _engine;
+            IGameEventManager2* _eventManager;
+
+            static Plugin* static_instance;
     };
 }
 

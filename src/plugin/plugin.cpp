@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include <common/luajit.hpp>
+#include <common/logging.hpp>
 #include <common/version.hpp>
 #include <plugin/plugin.hpp>
 
@@ -13,13 +14,18 @@
 
 namespace SourceLua
 {
-    int SourceLua_AtPanic(lua_State *L)
+    Plugin::Plugin()
     {
-        const char* error = lua_tostring(L, lua_gettop(L));
+        if(static_instance != nullptr)
+            throw new std::runtime_error("Only one instance of "
+                SOURCELUA_NAME "::Plugin may be active at a time");
 
-        std::string message{"Lua panicked: "};
-        message += error;
-        throw new std::runtime_error(message);
+        static_instance = this;
+    }
+
+    Plugin* Plugin::GetActiveInstance()
+    {
+        return static_instance;
     }
 
     bool Plugin::Load(CreateInterfaceFn interfaceFactory,
@@ -28,45 +34,32 @@ namespace SourceLua
         ConnectTier1Libraries(&interfaceFactory, 1);
         ConnectTier2Libraries(&interfaceFactory, 1);
 
-        engine = (IVEngineServer*)interfaceFactory(INTERFACEVERSION_VENGINESERVER, NULL);
-        eventManager = (IGameEventManager2*)interfaceFactory(INTERFACEVERSION_GAMEEVENTSMANAGER2, NULL);
-        L = luaL_newstate();
+        _engine = static_cast<IVEngineServer*>(interfaceFactory(INTERFACEVERSION_VENGINESERVER, nullptr));
+        _eventManager = static_cast<IGameEventManager2*>(interfaceFactory(INTERFACEVERSION_GAMEEVENTSMANAGER2, nullptr));
 
-        if (engine == nullptr)
+        if (_engine == nullptr)
         {
-            DevMsg("Failed to get instance of engine");
+            LogMessage<LogLevel::Error>("Failed to get instance of engine");
             return false;
         }
-        if (eventManager == nullptr)
+        if (_eventManager == nullptr)
         {
-            DevMsg("Failed to get instance of event manager");
-            return false;
-        }
-        if(L == nullptr)
-        {
-            DevMsg("Failed to init LuaJIT, possible memory allocation error?");
+            LogMessage<LogLevel::Error>("Failed to get instance of event manager");
             return false;
         }
 
-        lua_atpanic(L, SourceLua_AtPanic);
-        luaL_openlibs(L);
         ConVar_Register(0);
         return true;
     }
 
     void Plugin::Unload()
     {
-        if (L != nullptr)
-        {
-            lua_close(L);
-        }
-
         ConVar_Unregister();
         DisconnectTier2Libraries();
         DisconnectTier1Libraries();
     }
 
-    const char *Plugin::GetPluginDescription()
+    const char* Plugin::GetPluginDescription()
     {
         return PLUGIN_DESCRIPTION;
     }
@@ -82,16 +75,24 @@ namespace SourceLua
 
     const char* Plugin::RunLuaString(const char* code)
     {
-        if (L == nullptr)
+        /*if (L == nullptr)
             return nullptr;
 
         if (luaL_dostring(L, code) != 0)
         {
             return lua_tostring(L, -1);
-        }
+        }*/
 
         return nullptr;
     }
+
+#ifdef SOURCELUA_DEBUG
+    void Plugin::CausePanic()
+    {
+        /*lua_pushnil(L);
+        lua_call(L, 0, 0);*/
+    }
+#endif /* SOURCELUA_DEBUG */
 
     void Plugin::Pause() { }
     void Plugin::UnPause() { }

@@ -5,7 +5,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${LUAJIT_INCLUDE_DIR})
 include_directories(${SOURCE_SDK_INCLUDE_DIRS})
 
-set(SOURCE_FILES main.cpp plugin/plugin.cpp)
+set(SOURCE_FILES main.cpp plugin/plugin.cpp plugin/cvars.cpp
+plugin/commands.cpp lua/lua.cpp thread/scheduler.cpp)
+
+set(CMAKE_CXX_FLAGS_DEBUG -DSOURCELUA_DEBUG)
 
 add_library(sourcelua SHARED ${SOURCE_FILES})
 add_dependencies(sourcelua luajit)

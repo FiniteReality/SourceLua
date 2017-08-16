@@ -5,6 +5,7 @@ set(SOURCE_SDK_BASE_DIR "${CMAKE_SOURCE_DIR}/source-sdk-2013/${SOURCE_SDK_PLATFO
 
 set(SOURCE_SDK_INCLUDE_DIRS
     "${SOURCE_SDK_BASE_DIR}/src"
+    "${SOURCE_SDK_BASE_DIR}/src/common"
     "${SOURCE_SDK_BASE_DIR}/src/public"
     "${SOURCE_SDK_BASE_DIR}/src/public/tier0"
     "${SOURCE_SDK_BASE_DIR}/src/public/tier1"

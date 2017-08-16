@@ -13,8 +13,13 @@
 #include <convar.h>
 #include <eiface.h>
 #include <engine/iserverplugin.h>
+#include <iclient.h>
 #include <igameevents.h>
+#include <iserver.h>
 #include <tier1/tier1.h>
 #include <tier2/tier2.h>
+
+#undef max
+#undef min
 
 #endif /* _source_hpp_ */
