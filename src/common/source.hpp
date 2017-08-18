@@ -21,5 +21,6 @@
 
 #undef max
 #undef min
+#undef nullptr
 
 #endif /* _source_hpp_ */

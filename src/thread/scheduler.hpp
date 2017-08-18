@@ -12,35 +12,35 @@
 
 namespace SourceLua
 {
-    namespace Scheduling
-    {
-        class Scheduler
+namespace Scheduling
+{
+class Scheduler
+{
+    public:
+        void EnqueueCoroutine(Lua::Script* script,
+            int idx, unsigned int delay_msec);
+
+        void Tick();
+
+    private:
+        struct TaskInfo
         {
-            public:
-                void EnqueueCoroutine(Lua::Script* script,
-                    int idx, unsigned int delay_msec);
+            TaskInfo(Lua::Script* script, int idx,
+                unsigned int resume_at);
+            TaskInfo(const TaskInfo&) = default;
+            TaskInfo& operator=(const TaskInfo&) = default;
+            TaskInfo(TaskInfo&&) = default;
+            TaskInfo& operator=(TaskInfo&&) = default;
+            ~TaskInfo() = default;
 
-                void Tick();
-
-            private:
-                struct TaskInfo
-                {
-                    TaskInfo(Lua::Script* script, int idx,
-                        unsigned int resume_at);
-                    TaskInfo(const TaskInfo&) = default;
-                    TaskInfo& operator=(const TaskInfo&) = default;
-                    TaskInfo(TaskInfo&&) = default;
-                    TaskInfo& operator=(TaskInfo&&) = default;
-                    ~TaskInfo() = default;
-
-                    Lua::Script* script;
-                    int idx;
-                    unsigned int resume_at_millis;
-                };
-
-                std::vector<std::unique_ptr<TaskInfo>> tasks;
+            Lua::Script* script;
+            int idx;
+            unsigned int resume_at_millis;
         };
-    }
+
+        std::vector<std::unique_ptr<TaskInfo>> tasks;
+};
+}
 }
 
 #endif /* _scheduler_hpp_ */
