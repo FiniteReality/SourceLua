@@ -20,9 +20,12 @@ so any help would be great.
 
 ## Build Instructions ##
 
+### Linux ###
+These instructions were tested on a Debian 9 Stretch install, they may
+require tweaking to run correctly on your system.
 1. Update submodules (`luajit-2.0`, `source-sdk-2013`)
 2. Patch the Source SDK:
-  `cd source-sdk-2013 && patch -t -Np1 < ../patches/source-sdk-2013.patch`
+  `cd source-sdk-2013 && git apply ../patches/source-sdk-2013.patch`
 3. Make a build directory (e.g. `build`)
 4. Run CMake (`cmake ..`)
 5. Run Make (`make`)
