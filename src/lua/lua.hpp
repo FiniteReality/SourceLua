@@ -45,6 +45,8 @@ class Script
         void PushString(const char* value);
         void PushString(const char* value, size_t length);
 
+        void PushValue(int idx);
+
         void MoveFromParent(int amount);
         void MoveToParent(int amount);
 

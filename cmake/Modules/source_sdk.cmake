@@ -26,6 +26,6 @@ endif()
 if(MSVC)
     # TODO: we should probably set the version here too...
     add_definitions(-D_MSVC_VER)
-elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+elseif(${CMAKE_COMPILER_IS_GNUCC} OR ${CMAKE_COMPILER_IS_GNUCXX})
     add_definitions(-DGNUC)
 endif()

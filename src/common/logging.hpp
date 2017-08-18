@@ -23,7 +23,7 @@ enum class LogLevel
 };
 
 template <LogLevel L, typename... TArgs>
-constexpr inline void LogMessage(const char* fmt, TArgs... args)
+void LogMessage(const char* fmt, TArgs... args)
 {
     // TODO: figure out how to make these constant conditions for
     // static_assert
@@ -70,6 +70,7 @@ constexpr inline void LogMessage(const char* fmt, TArgs... args)
 
     Msg(msg.c_str(), args...);
 }
+
 }
 
 #endif /* _logging_hpp_ */

@@ -58,6 +58,7 @@ bool Plugin::Load(CreateInterfaceFn interfaceFactory,
     }
 
     luaL_openlibs(_G);
+    _scheduler->Start();
 
     ConVar_Register(0);
     return true;
@@ -65,6 +66,8 @@ bool Plugin::Load(CreateInterfaceFn interfaceFactory,
 
 void Plugin::Unload()
 {
+    _scheduler->Stop();
+
     ConVar_Unregister();
     DisconnectTier2Libraries();
     DisconnectTier1Libraries();

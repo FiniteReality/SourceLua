@@ -39,6 +39,11 @@ void Script::PushString(const char* value, size_t length)
     lua_pushlstring(_T, value, length);
 }
 
+void Script::PushValue(int idx)
+{
+    lua_pushvalue(_T, idx);
+}
+
 void Script::MoveFromParent(int amount)
 {
     lua_xmove(_L, _T, amount);

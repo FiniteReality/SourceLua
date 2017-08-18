@@ -29,22 +29,52 @@ void Scheduler::EnqueueCoroutine(Lua::Script* script, int idx,
 {
     auto resume_at = GetCurrentTime(std::chrono::milliseconds)
         + delay_msec;
-    tasks.push_back(std::make_unique<TaskInfo>(script, idx, resume_at));
+    tasks.push(std::make_unique<TaskInfo>(script, idx, resume_at));
+    thread_available.notify_one();
 }
 
 void Scheduler::Tick()
 {
-    auto right_now = GetCurrentTime(std::chrono::milliseconds);
+    thread_available.notify_one();
+}
 
-    for (auto& task : tasks)
+void Scheduler::Start()
+{
+    running = true;
+    scheduler_thread = std::thread(TickThread, this);
+}
+
+void Scheduler::Stop()
+{
+    running = false;
+    if (scheduler_thread.joinable())
+        scheduler_thread.join();
+}
+
+void Scheduler::TickThread(Scheduler* info)
+{
+    while (info->running)
     {
-        if (right_now >= task->resume_at_millis)
+        std::unique_lock<std::mutex> lk(info->resume_lock);
+        info->thread_available.wait(lk);
+
+        auto now = GetCurrentTime(std::chrono::milliseconds);
+
+        std::unique_ptr<TaskInfo> task;
+        if (info->tasks.try_pop(task))
         {
-            task->script->Resume(right_now - task->resume_at_millis);
-            tasks.erase(std::remove(tasks.begin(), tasks.end(), task), tasks.end());
-            break;
+            if (task->resume_at_millis > now)
+            {
+                task->script->PushValue(task->idx);
+                task->script->Resume(now - task->resume_at_millis);
+            }
+            else
+            {
+                info->tasks.push(std::move(task));
+            }
         }
     }
 }
+
 }
 }

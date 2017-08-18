@@ -5,8 +5,12 @@
  * Schedules Lua tasks to be ran on a game tick
  */
 
+#include <atomic>
+#include <condition_variable>
 #include <memory>
-#include <vector>
+#include <mutex>
+#include <tbb/concurrent_priority_queue.h>
+#include <thread>
 
 #include <lua/lua.hpp>
 
@@ -22,7 +26,11 @@ class Scheduler
 
         void Tick();
 
+        void Start();
+        void Stop();
     private:
+        static void TickThread(Scheduler* info);
+
         struct TaskInfo
         {
             TaskInfo(Lua::Script* script, int idx,
@@ -36,9 +44,21 @@ class Scheduler
             Lua::Script* script;
             int idx;
             unsigned int resume_at_millis;
+
+            friend bool operator<(const TaskInfo& lhs, const TaskInfo& rhs)
+            {
+                return lhs.resume_at_millis
+                     < rhs.resume_at_millis;
+            }
         };
 
-        std::vector<std::unique_ptr<TaskInfo>> tasks;
+        tbb::concurrent_priority_queue<std::unique_ptr<TaskInfo>> tasks;
+
+        std::atomic_bool running;
+
+        std::thread scheduler_thread;
+        std::mutex resume_lock;
+        std::condition_variable thread_available;
 };
 }
 }
