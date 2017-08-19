@@ -28,30 +28,6 @@ class Script
         Script& operator=(Script&&) = delete;
         ~Script() = default;
 
-        template <typename T>
-        constexpr void PushInteger(T value)
-        {
-            static_assert(std::is_integral<T>::value, "T is not integral");
-            lua_pushinteger(_T, (lua_Integer)value);
-        }
-
-        template <typename T>
-        constexpr void PushFloat(T value)
-        {
-            static_assert(std::is_floating_point<T>::value, "T is not floating point");
-            lua_pushnumber(_T, (lua_Number)value);
-        }
-
-        void PushString(const char* value);
-        void PushString(const char* value, size_t length);
-
-        void PushValue(int idx);
-
-        void MoveFromParent(int amount);
-        void MoveToParent(int amount);
-
-        void Resume(uint64_t delta_millis);
-
         void Run(const char* code);
         void Run(const char* code, size_t length);
 

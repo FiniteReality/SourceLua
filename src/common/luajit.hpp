@@ -10,9 +10,10 @@
 #include <common/version.hpp>
 
 #ifndef LUAJIT_VERSION
-#error "LuaJIT wasn't included properly, maybe we included a Lua version instead?"
+#error "LuaJIT wasn't included properly"
 #endif
 
-#define SOURCELUA_PLUGIN_KEY STR(SOURCELUA_NAME) "_plugin"
+#define SOURCELUA_SCRIPT_KEY STR(SOURCELUA_NAME) "_script"
+#define SOURCELUA_SCHEDULER_KEY STR(SOURCELUA_NAME) "_scheduler"
 
 #endif /* _luajit_hpp_ */

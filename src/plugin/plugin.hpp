@@ -17,6 +17,9 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
     public:
         static Plugin* GetActiveInstance();
 
+        // TODO: this should be moved somewhere more sensible
+        Lua::Script* GetScriptFromState(lua_State* L);
+
         bool Load(CreateInterfaceFn interfaceFactory,
             CreateInterfaceFn gameServerFactory) override;
         void Unload() override;
@@ -67,6 +70,9 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
         #endif /* SOURCELUA_DEBUG */
 
     private:
+
+        void LoadLua();
+
         int _commandIndex;
 
         lua_State* _G;

@@ -29,6 +29,7 @@ require tweaking to run correctly on your system.
 3. Make a build directory (e.g. `build`)
 4. Run CMake (`cmake ..`)
 5. Run Make (`make`)
+6. Build outputs are located in `final`
 
 ## Installation Instructions ##
 
@@ -39,8 +40,7 @@ require tweaking to run correctly on your system.
 3. Move `util/sourcelua.vdf` into the `addons` folder you created
 3. Create a folder named `sourcelua` in the same directory you moved
    `sourcelua.vdf` into, and a folder in that named `bin`
-4. Move `libsourcelua.so` from the build output into the `bin` folder you
-   created
+4. Move the contents of `final` into the `bin` folder you created
 5. Restart the server if it was running already
 
 ## License ##

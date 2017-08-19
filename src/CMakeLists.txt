@@ -6,8 +6,9 @@ include_directories(${LUAJIT_INCLUDE_DIR})
 include_directories(${TBB_INCLUDE_DIRS})
 include_directories(${SOURCE_SDK_INCLUDE_DIRS})
 
-set(SOURCE_FILES main.cpp plugin/plugin.cpp plugin/cvars.cpp
-plugin/commands.cpp lua/lua.cpp thread/scheduler.cpp)
+set(SOURCE_FILES main.cpp thread/scheduler.cpp lua/lua.cpp
+lua/libraries/thread.cpp plugin/plugin.commands.cpp plugin/plugin.cvars.cpp
+plugin/plugin.cpp plugin/plugin.events.cpp)
 
 set(CMAKE_CXX_FLAGS_DEBUG -DSOURCELUA_DEBUG)
 
@@ -16,3 +17,8 @@ add_dependencies(sourcelua luajit)
 target_link_libraries(sourcelua ${LUAJIT_LIBRARIES}
 "${SOURCE_SDK_LIBRARY_DIR}/libtier0.so" "${SOURCE_SDK_LIBRARY_DIR}/tier1.a"
 "${SOURCE_SDK_LIBRARY_DIR}/tier2.a" tbb)
+
+install(
+    TARGETS sourcelua
+    DESTINATION "${CMAKE_BINARY_DIR}/final"
+)

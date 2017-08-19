@@ -3,7 +3,6 @@
  */
 
 #include <common/logging.hpp>
-#include <common/luajit.hpp>
 #include <common/source.hpp>
 #include <common/version.hpp>
 #include <plugin/plugin.hpp>

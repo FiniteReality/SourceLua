@@ -10,87 +10,32 @@
 #include <lua/lua.hpp>
 #include <plugin/plugin.hpp>
 
+#include <lua/libraries/thread.hpp>
+
 namespace SourceLua
 {
-static Plugin* PLUGIN = nullptr;
-
-Plugin* Plugin::GetActiveInstance()
+Lua::Script* Plugin::GetScriptFromState(lua_State* L)
 {
-    if (PLUGIN == nullptr)
-        throw new std::runtime_error("Plugin not initialized yet!");
+    lua_getfield(_G, LUA_REGISTRYINDEX, SOURCELUA_SCRIPT_KEY);
 
-    return PLUGIN;
-}
+    if (lua_pushthread(L))
+        throw new std::runtime_error(
+            "GetScriptFromState called on main state");
 
-bool Plugin::Load(CreateInterfaceFn interfaceFactory,
-    CreateInterfaceFn gameServerFactory)
-{
-    ConnectTier1Libraries(&interfaceFactory, 1);
-    ConnectTier2Libraries(&interfaceFactory, 1);
+    // Move thread to global state so we can call gettable
+    lua_xmove(L, _G, 1);
+    lua_gettable(_G, -2);
 
-    _G = luaL_newstate();
-    _scheduler = std::make_unique<Scheduling::Scheduler>();
-    _engine = static_cast<IVEngineServer*>(
-        interfaceFactory(INTERFACEVERSION_VENGINESERVER, nullptr));
-    _eventManager = static_cast<IGameEventManager2*>(
-        interfaceFactory(INTERFACEVERSION_GAMEEVENTSMANAGER2, nullptr));
+    if (!lua_islightuserdata(_G, -1))
+        throw new std::runtime_error(
+            "GetScriptFromState script was not light userdata");
 
-    if (_engine == nullptr)
-    {
-        LogMessage<LogLevel::Error>("Failed to get instance of engine");
-        return false;
-    }
-    if (_eventManager == nullptr)
-    {
-        LogMessage<LogLevel::Error>(
-            "Failed to get instance of event manager");
-        return false;
-    }
-    if (_G == nullptr)
-    {
-        LogMessage<LogLevel::Error>(
-            "Failed to init lua state, possible memory allocation failure?");
-        return false;
-    }
+    auto script = static_cast<Lua::Script*>(lua_touserdata(_G, -1));
 
-    luaL_openlibs(_G);
-    _scheduler->Start();
+    // Pop table and userdata
+    lua_pop(_G, 2);
 
-    ConVar_Register(0);
-
-    LogMessage<LogLevel::Information>(
-        "Version %s loaded successfully! Use 'sl_version' to see more.",
-        SOURCELUA_VERSION);
-
-    PLUGIN = this;
-    return true;
-}
-
-void Plugin::Unload()
-{
-    _scheduler->Stop();
-
-    ConVar_Unregister();
-    DisconnectTier2Libraries();
-    DisconnectTier1Libraries();
-}
-
-const char* Plugin::GetPluginDescription()
-{
-    return SOURCELUA_NAME " version " SOURCELUA_VERSION
-        " by " SOURCELUA_AUTHOR;
-}
-
-void Plugin::SetCommandClient(int index)
-{
-    _commandIndex = index;
-}
-
-void Plugin::GameFrame(bool simulating)
-{
-    //TODO: this is a **bad** idea. We need to find a better way to safely
-    // tick the scheduler without causing the engine to hang.
-    _scheduler->Tick();
+    return script;
 }
 
 const char* Plugin::RunLuaString(const char* code)
@@ -110,31 +55,18 @@ void Plugin::CausePanic()
 }
 #endif /* SOURCELUA_DEBUG */
 
-void Plugin::Pause() { }
-void Plugin::UnPause() { }
-void Plugin::LevelInit(char const* mapName) { }
-void Plugin::ServerActivate(edict_t* pEdictList, int edictCount,
-    int clientMax) { }
-void Plugin::LevelShutdown() { }
-PLUGIN_RESULT Plugin::ClientConnect(bool* allowConnect,
-    edict_t* pEntity, const char* pName, const char* ipAddress,
-    char* reject, int maxRejectLen)
-{ return PLUGIN_CONTINUE; }
-void Plugin::ClientActive(edict_t* pEntity) { }
-void Plugin::ClientDisconnect(edict_t* pEntity) { }
-void Plugin::ClientPutInServer(edict_t* pEntity,
-    char const* playerName) { }
-void Plugin::ClientSettingsChanged(edict_t* pEntity) { }
-PLUGIN_RESULT Plugin::ClientCommand(edict_t* pEntity,
-    const CCommand& args)
-{ return PLUGIN_CONTINUE; }
-PLUGIN_RESULT Plugin::NetworkIDValidated(const char* pName,
-    const char* networkId)
-{ return PLUGIN_CONTINUE; }
-void Plugin::OnQueryCvarValueFinished(QueryCvarCookie_t iCookie,
-    edict_t* pEntity, EQueryCvarValueStatus eStatus,
-    const char* name, const char* value) { }
-void Plugin::OnEdictAllocated(edict_t* edict) { }
-void Plugin::OnEdictFreed(const edict_t* edict) { }
-void Plugin::FireGameEvent(KeyValues* event) { }
+void Plugin::LoadLua()
+{
+    // TODO: replace this with a more secure approach (loading all libs means
+    // we can potentially do bad things like turning JIT off, loading unknown
+    // libraries, etc.)
+    luaL_openlibs(_G);
+    Lua::Threading::luaopen_thread(_G);
+
+    lua_createtable(_G, 0, 1);
+    lua_setfield(_G, LUA_REGISTRYINDEX, SOURCELUA_SCRIPT_KEY);
+
+    lua_pushlightuserdata(_G, _scheduler.get());
+    lua_setfield(_G, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_KEY);
+}
 }

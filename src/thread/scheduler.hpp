@@ -21,8 +21,8 @@ namespace Scheduling
 class Scheduler
 {
     public:
-        void EnqueueCoroutine(Lua::Script* script,
-            int idx, unsigned int delay_msec);
+        void EnqueueCoroutine(lua_State* L, int idx,
+            unsigned int delay_msec);
 
         void Tick();
 
@@ -33,17 +33,18 @@ class Scheduler
 
         struct TaskInfo
         {
-            TaskInfo(Lua::Script* script, int idx,
-                unsigned int resume_at);
+            TaskInfo(lua_State* L, int idx,
+                uint64_t resume_at, uint64_t now);
             TaskInfo(const TaskInfo&) = default;
             TaskInfo& operator=(const TaskInfo&) = default;
             TaskInfo(TaskInfo&&) = default;
             TaskInfo& operator=(TaskInfo&&) = default;
             ~TaskInfo() = default;
 
-            Lua::Script* script;
+            lua_State* state;
             int idx;
-            unsigned int resume_at_millis;
+            uint64_t resume_at_millis;
+            uint64_t enqueued_at;
 
             friend bool operator<(const TaskInfo& lhs, const TaskInfo& rhs)
             {
@@ -56,7 +57,7 @@ class Scheduler
 
         std::atomic_bool running;
 
-        std::thread scheduler_thread;
+        std::thread thread;
         std::mutex resume_lock;
         std::condition_variable thread_available;
 };
