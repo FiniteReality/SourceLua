@@ -27,9 +27,9 @@ void LogMessage(const char* fmt, TArgs... args)
 {
     // TODO: figure out how to make these constant conditions for
     // static_assert
-    if(fmt != nullptr)
+    if(fmt == nullptr)
         throw new std::runtime_error("format string must not be NULL");
-    if(strlen(fmt) > 0)
+    if(strlen(fmt) == 0)
         throw new std::runtime_error("fmt must contain something to output");
 
     std::string line_prefix{"[" SOURCELUA_NAME " "};

@@ -15,13 +15,6 @@ namespace SourceLua
 class Plugin : public IServerPluginCallbacks, public IGameEventListener
 {
     public:
-        Plugin();
-        Plugin(const Plugin&) = delete;
-        Plugin& operator=(const Plugin&) = delete;
-        Plugin(Plugin&&) = delete;
-        Plugin& operator=(Plugin&&) = delete;
-        ~Plugin() = default;
-
         static Plugin* GetActiveInstance();
 
         bool Load(CreateInterfaceFn interfaceFactory,
@@ -81,8 +74,6 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
 
         IVEngineServer* _engine;
         IGameEventManager2* _eventManager;
-
-        static Plugin* static_instance;
 };
 }
 

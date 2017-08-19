@@ -12,18 +12,14 @@
 
 namespace SourceLua
 {
-Plugin::Plugin()
-{
-    if(static_instance != nullptr)
-        throw new std::runtime_error("Only one instance of "
-            SOURCELUA_NAME "::Plugin may be active at a time");
-
-    static_instance = this;
-}
+static Plugin* PLUGIN = nullptr;
 
 Plugin* Plugin::GetActiveInstance()
 {
-    return static_instance;
+    if (PLUGIN == nullptr)
+        throw new std::runtime_error("Plugin not initialized yet!");
+
+    return PLUGIN;
 }
 
 bool Plugin::Load(CreateInterfaceFn interfaceFactory,
@@ -61,6 +57,12 @@ bool Plugin::Load(CreateInterfaceFn interfaceFactory,
     _scheduler->Start();
 
     ConVar_Register(0);
+
+    LogMessage<LogLevel::Information>(
+        "Version %s loaded successfully! Use 'sl_version' to see more.",
+        SOURCELUA_VERSION);
+
+    PLUGIN = this;
     return true;
 }
 

@@ -65,38 +65,56 @@ void Script::Run(const char* code)
 }
 void Script::Run(const char* code, size_t length)
 {
-    int err = luaL_loadbufferx(_T, code, length, _name, "t") && lua_pcall(_T, 0, LUA_MULTRET, 0);
+    int err = luaL_loadbufferx(_T, code, length, _name, "t");
+    if (err == 0)
+        err = lua_pcall(_T, 0, LUA_MULTRET, 0);
+
+    const char* message;
+
+    if (err != 0 && lua_isstring(_T, -1))
+    {
+        message = lua_tostring(_T, -1);
+    }
 
     switch (err)
     {
-        case (LUA_ERRSYNTAX):
+        case 0: // No error
         {
-            const char* message = lua_tostring(_T, -1);
+            if (lua_gettop(_T) > 0)
+            {
+                lua_getglobal(_T, "print");
+                lua_insert(_T, 1);
+                if (lua_pcall(_T, lua_gettop(_T)-1, 0, 0) != 0)
+                {
+                    LogMessage<LogLevel::Warning>(
+                        "Error calling print: %s",
+                        lua_tostring(_T, -1));
+                }
+            }
+            break;
+        }
+        case LUA_ERRSYNTAX:
             LogMessage<LogLevel::Error>(
                 "Failed to load Lua code for script %s: %s",
                 _name,
                 message);
             break;
-        }
-        case (LUA_ERRRUN):
-        {
-            const char* message = lua_tostring(_T, -1);
+        case LUA_ERRRUN:
             LogMessage<LogLevel::Error>(
                 "Lua script %s experienced an error: %s",
                 _name,
                 message);
             break;
-        }
-        case (LUA_ERRMEM):
+        case LUA_ERRMEM:
             LogMessage<LogLevel::Error>(
                 "Memory allocation error occured in script %s",
                 _name);
             break;
-        case (LUA_ERRERR):
+        case LUA_ERRERR:
         default:
             LogMessage<LogLevel::Warning>(
-                "Unknown error occured when loading code for script %s",
-                _name);
+                "Unknown error occured when loading code for script %s (%d)",
+                _name, err);
             break;
     }
 }
