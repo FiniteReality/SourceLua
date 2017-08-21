@@ -13,10 +13,11 @@ so any help would be great.
 
 ## Dependencies ##
 
-- CMake
 - A C++ compiler supporting C++14
+- CMake
 - LuaJIT (included)
 - Source SDK 2013 (Included)
+- TBB (Not included)
 
 ## Build Instructions ##
 
