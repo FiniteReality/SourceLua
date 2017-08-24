@@ -11,3 +11,4 @@
 #define SOURCELUA_AUTHOR "FiniteReality"
 
 #endif /* _info_hpp_ */
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

@@ -6,7 +6,7 @@
 #include <chrono>
 
 #include <common/logging.hpp>
-#include <thread/scheduler.hpp>
+#include <lua/scheduler.hpp>
 
 #define GetCurrentTime(duration) \
     std::chrono::duration_cast<duration>( \
@@ -16,14 +16,11 @@
 
 namespace SourceLua
 {
-namespace Scheduling
+namespace Lua
 {
 
-Scheduler::TaskInfo::TaskInfo(lua_State* L, int _ref,
-    int64_t _resume_at_millis, int64_t now)
-        : state(L), ref(_ref), resume_at(_resume_at_millis),
-          enqueued_at(now)
-{ }
+SourceLua::Lua::SourceLua::Lua::Scheduler::TaskInfo::TaskInfo(lua_State* L, int ref, int64_t resume_at, int64_t now)
+
 
 void Scheduler::EnqueueCoroutine(lua_State* L, unsigned int delay_msec)
 {
@@ -72,13 +69,18 @@ void Scheduler::TickThread(Scheduler* scheduler)
         // If we came out of the lock because Stop() was called, we don't need
         // to process anything.
         if (!scheduler->run)
+        {
             break;
+        }
 
         int64_t now = GetCurrentTime(std::chrono::milliseconds);
 
         std::unique_ptr<TaskInfo> task;
+
         if (!scheduler->tasks.try_pop(task))
+        {
             continue;
+        }
 
         if (now < task->resume_at)
         {
@@ -129,3 +131,8 @@ void Scheduler::TickThread(Scheduler* scheduler)
 
 }
 }
+
+
+
+
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

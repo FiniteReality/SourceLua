@@ -8,7 +8,7 @@
 #include <memory>
 
 #include <common/source.hpp>
-#include <thread/scheduler.hpp>
+#include <lua/scheduler.hpp>
 
 namespace SourceLua
 {
@@ -19,40 +19,44 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
         static Plugin* GetActiveInstance();
 
         bool Load(CreateInterfaceFn interfaceFactory,
-            CreateInterfaceFn gameServerFactory) override;
+                  CreateInterfaceFn gameServerFactory) override;
         void Unload() override;
 
         void Pause() override;
         void UnPause() override;
 
-        const char *GetPluginDescription() override;
+        const char* GetPluginDescription() override;
 
         void LevelInit(char const* mapName) override;
 
         void ServerActivate(edict_t* pEdictList, int edictCount,
-            int clientMax) override;
+                            int clientMax) override;
 
         void GameFrame(bool simulating) override;
 
         void LevelShutdown() override;
 
         PLUGIN_RESULT ClientConnect(bool* allowConnect,
-            edict_t* pEntity, const char* pName, const char* ipAddress,
-            char* reject, int maxRejectLen) override;
+                                    edict_t* pEntity,
+                                    const char* pName,
+                                    const char* ipAddress,
+                                    char* reject, int maxRejectLen) override;
         void ClientActive(edict_t* pEntity) override;
         void ClientDisconnect(edict_t* pEntity) override;
         void ClientPutInServer(edict_t* pEntity,
-            char const* playerName) override;
+                               char const* playerName) override;
         void ClientSettingsChanged(edict_t* pEntity) override;
         PLUGIN_RESULT ClientCommand(edict_t* pEntity,
-            const CCommand& args) override;
+                                    const CCommand& args) override;
 
         PLUGIN_RESULT NetworkIDValidated(const char* pName,
-            const char* networkId) override;
+                                         const char* networkId) override;
 
         void OnQueryCvarValueFinished(QueryCvarCookie_t iCookie,
-            edict_t* pEntity, EQueryCvarValueStatus eStatus,
-            const char* name, const char* value) override;
+                                      edict_t* pEntity,
+                                      EQueryCvarValueStatus eStatus,
+                                      const char* name,
+                                      const char* value) override;
 
         void OnEdictAllocated(edict_t* edict) override;
         void OnEdictFreed(const edict_t* edict) override;
@@ -63,9 +67,9 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
         int GetCommandIndex();
 
         const char* RunLuaString(const char* code);
-        #ifdef SOURCELUA_DEBUG
+#ifdef SOURCELUA_DEBUG
         void CausePanic();
-        #endif /* SOURCELUA_DEBUG */
+#endif /* SOURCELUA_DEBUG */
 
     private:
 
@@ -74,7 +78,7 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
         int _commandIndex;
 
         lua_State* _G;
-        std::unique_ptr<Scheduling::Scheduler> _scheduler;
+        std::unique_ptr<Lua::Scheduler> _scheduler;
 
         IVEngineServer* _engine;
         IGameEventManager2* _eventManager;
@@ -83,3 +87,4 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
 }
 
 #endif /* _plugin_hpp_ */
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

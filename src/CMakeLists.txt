@@ -6,9 +6,15 @@ include_directories(${LUAJIT_INCLUDE_DIR})
 include_directories(${TBB_INCLUDE_DIRS})
 include_directories(${SOURCE_SDK_INCLUDE_DIRS})
 
-set(SOURCE_FILES main.cpp thread/scheduler.cpp lua/lua.cpp
-lua/libraries/thread.cpp plugin/plugin.commands.cpp plugin/plugin.cvars.cpp
-plugin/plugin.cpp plugin/plugin.events.cpp)
+set(SOURCE_FILES
+
+lua/lua.cpp lua/scheduler.cpp lua/libraries/thread.cpp
+lua/libraries/console.cpp
+
+plugin/plugin.commands.cpp plugin/plugin.cvars.cpp plugin/plugin.cpp
+plugin/plugin.events.cpp
+
+main.cpp)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DSOURCELUA_DEBUG")
 

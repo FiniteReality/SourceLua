@@ -25,7 +25,7 @@ class Script
         Script(const Script&) = delete;
         Script& operator=(const Script&) = delete;
         Script(Script&&) = delete;
-        Script& operator=(Script&&) = delete;
+        Script& operator=(Script &&) = delete;
         ~Script();
 
         void Run(const char* code);
@@ -42,3 +42,4 @@ class Script
 }
 
 #endif /* _lua_hpp_ */
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

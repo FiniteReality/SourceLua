@@ -1,12 +1,12 @@
+#include <lua/scheduler.hpp>
+
 #include <lua/libraries/thread.hpp>
-#include <plugin/plugin.hpp>
-#include <thread/scheduler.hpp>
 
 namespace SourceLua
 {
 namespace Lua
 {
-namespace Threading
+namespace Libraries
 {
 
 int Sleep(lua_State* L)
@@ -14,8 +14,8 @@ int Sleep(lua_State* L)
     double delay = luaL_checknumber(L, 1);
 
     lua_getfield(L, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_KEY);
-    auto scheduler = static_cast<Scheduling::Scheduler*>(
-        lua_touserdata(L, -1));
+    auto scheduler = static_cast<Lua::Scheduler*>(
+                         lua_touserdata(L, -1));
 
     lua_pop(L, 1);
 
@@ -27,11 +27,11 @@ int Sleep(lua_State* L)
 int Spawn(lua_State* L)
 {
     luaL_argcheck(L, lua_isfunction(L, 1) && !lua_iscfunction(L, 1), 1,
-        "Lua function expected");
+                  "Lua function expected");
 
     lua_getfield(L, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_KEY);
-    auto scheduler = static_cast<Scheduling::Scheduler*>(
-        lua_touserdata(L, -1));
+    auto scheduler = static_cast<Lua::Scheduler*>(
+                         lua_touserdata(L, -1));
 
     lua_pop(L, 1);
 
@@ -60,3 +60,4 @@ int luaopen_thread(lua_State* L)
 }
 }
 }
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

@@ -18,3 +18,4 @@
 #define SOURCELUA_SCHEDULER_CACHE_KEY STR(SOURCELUA_NAME) "_scheduler_cache"
 
 #endif /* _luajit_hpp_ */
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

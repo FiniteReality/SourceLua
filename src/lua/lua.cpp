@@ -5,7 +5,7 @@
 
 #include <common/logging.hpp>
 #include <lua/lua.hpp>
-#include <thread/scheduler.hpp>
+#include <lua/scheduler.hpp>
 
 namespace SourceLua
 {
@@ -61,35 +61,41 @@ void Script::Run(const char* code, size_t length)
 
     switch (err)
     {
-    case 0: // No error
-    {
-        lua_getfield(_T, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_KEY);
-        auto scheduler = static_cast<Scheduling::Scheduler*>(
-            lua_touserdata(_T, -1));
+        case 0: // No error
+            {
+                lua_getfield(_T, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_KEY);
+                auto scheduler = static_cast<Lua::Scheduler*>(
+                    lua_touserdata(_T, -1));
 
-        lua_pop(_T, 1);
+                lua_pop(_T, 1);
 
-        scheduler->EnqueueCoroutine(_T, 0);
-        break;
-    }
-    case LUA_ERRSYNTAX:
-        LogMessage<LogLevel::Error>(
-            "Failed to load Lua code for script %s: %s",
-            _name,
-            message);
-        break;
-    default:
-        if (message != nullptr)
-            LogMessage<LogLevel::Warning>(
-                "Unknown error occured when loading code for script %s: %s",
-                _name, message);
-        else
+                scheduler->EnqueueCoroutine(_T, 0);
+                break;
+            }
+
+        case LUA_ERRSYNTAX:
             LogMessage<LogLevel::Error>(
-                "Unknown error occured while loading code for script %s",
-                _name);
-        break;
+                "Failed to load Lua code for script %s: %s",
+                _name,
+                message);
+            break;
+
+        default:
+            if (message != nullptr)
+                LogMessage<LogLevel::Warning>(
+                    "Unknown error occured when"
+                    "loading code for script %s: %s",
+                    _name, message);
+            else
+                LogMessage<LogLevel::Error>(
+                    "Unknown error occured when"
+                    "loading code for script %s",
+                    _name);
+
+            break;
     }
 }
 
 }
 }
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

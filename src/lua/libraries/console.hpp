@@ -1,5 +1,5 @@
-#ifndef _lualibthread_hpp_
-#define _lualibthread_hpp_
+#ifndef _lualibconsole_hpp_
+#define _lualibconsole_hpp_
 
 #include <common/luajit.hpp>
 
@@ -10,11 +10,11 @@ namespace Lua
 namespace Libraries
 {
 
-int luaopen_thread(lua_State* L);
+int luaopen_console(lua_State* L);
 
 }
 }
 }
 
-#endif /* _lualibthread_hpp_ */
+#endif /* _lualibconsole_hpp_ */
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on;

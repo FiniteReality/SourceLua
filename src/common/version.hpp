@@ -17,3 +17,4 @@
 #endif /* SOURCELUA_VERSION_EXTRA */
 
 #endif /* _version_hpp_ */
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

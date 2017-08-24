@@ -15,9 +15,8 @@
 
 namespace SourceLua
 {
-namespace Scheduling
+namespace Lua
 {
-
 class Scheduler
 {
     public:
@@ -34,9 +33,9 @@ class Scheduler
         {
             TaskInfo(lua_State* L, int ref, int64_t resume_at, int64_t now);
             TaskInfo(const TaskInfo&) = default;
-            TaskInfo& operator=(const TaskInfo&) = default;
+            TaskInfo& operator= (const TaskInfo&) = default;
             TaskInfo(TaskInfo&&) = default;
-            TaskInfo& operator=(TaskInfo&&) = default;
+            TaskInfo& operator= (TaskInfo &&) = default;
             ~TaskInfo() = default;
 
             lua_State* state;
@@ -45,7 +44,7 @@ class Scheduler
             int64_t enqueued_at;
 
             friend inline bool operator< (const TaskInfo& lhs,
-                const TaskInfo& rhs)
+                                          const TaskInfo& rhs)
             {
                 return std::tie(lhs.resume_at, lhs.enqueued_at) <
                        std::tie(rhs.resume_at, rhs.enqueued_at);
@@ -61,7 +60,7 @@ class Scheduler
         std::condition_variable thread_available;
 };
 }
-
 }
 
 #endif /* _scheduler_hpp_ */
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

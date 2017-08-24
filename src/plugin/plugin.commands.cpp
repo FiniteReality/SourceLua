@@ -7,7 +7,8 @@
 
 using namespace SourceLua;
 
-CON_COMMAND(sl_version, "Prints the currently running " SOURCELUA_NAME " Version")
+CON_COMMAND(sl_version,
+    "Prints the currently running " SOURCELUA_NAME " Version")
 {
     LogMessage<LogLevel::Information>(
         "Version %s by %s\nLuaJIT Version: %s %s\n",
@@ -18,12 +19,13 @@ CON_COMMAND(sl_version, "Prints the currently running " SOURCELUA_NAME " Version
 CON_COMMAND(sl_eval, "Evaluate Lua code")
 {
     auto plugin = Plugin::GetActiveInstance();
+
     if (args.ArgC() < 1)
     {
         Msg("Usage: sl_eval <lua code>\n");
         return;
     }
-    
+
     const char* msg = plugin->RunLuaString(args.ArgS());
 
     if (msg != nullptr)
@@ -33,9 +35,11 @@ CON_COMMAND(sl_eval, "Evaluate Lua code")
 }
 
 #ifdef SOURCELUA_DEBUG
-CON_COMMAND_F(sl_force_panic, "Forces the Lua state to panic", FCVAR_SERVER_CAN_EXECUTE | FCVAR_HIDDEN )
+CON_COMMAND_F(sl_force_panic, "Forces the Lua state to panic",
+    FCVAR_SERVER_CAN_EXECUTE | FCVAR_HIDDEN)
 {
     auto plugin = Plugin::GetActiveInstance();
     plugin->CausePanic();
 }
 #endif /* SOURCELUA_DEBUG */
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
