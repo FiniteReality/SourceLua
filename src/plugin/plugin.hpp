@@ -12,13 +12,11 @@
 
 namespace SourceLua
 {
+
 class Plugin : public IServerPluginCallbacks, public IGameEventListener
 {
     public:
         static Plugin* GetActiveInstance();
-
-        // TODO: this should be moved somewhere more sensible
-        Lua::Script* GetScriptFromState(lua_State* L);
 
         bool Load(CreateInterfaceFn interfaceFactory,
             CreateInterfaceFn gameServerFactory) override;
@@ -81,6 +79,7 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
         IVEngineServer* _engine;
         IGameEventManager2* _eventManager;
 };
+
 }
 
 #endif /* _plugin_hpp_ */

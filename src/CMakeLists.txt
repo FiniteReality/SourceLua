@@ -10,7 +10,7 @@ set(SOURCE_FILES main.cpp thread/scheduler.cpp lua/lua.cpp
 lua/libraries/thread.cpp plugin/plugin.commands.cpp plugin/plugin.cvars.cpp
 plugin/plugin.cpp plugin/plugin.events.cpp)
 
-set(CMAKE_CXX_FLAGS_DEBUG -DSOURCELUA_DEBUG)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DSOURCELUA_DEBUG")
 
 add_library(sourcelua SHARED ${SOURCE_FILES})
 add_dependencies(sourcelua luajit)

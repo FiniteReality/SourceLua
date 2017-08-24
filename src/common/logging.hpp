@@ -13,6 +13,7 @@
 
 namespace SourceLua
 {
+
 enum class LogLevel
 {
     Debug,

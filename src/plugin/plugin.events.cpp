@@ -8,6 +8,7 @@
 
 namespace SourceLua
 {
+
 static Plugin* PLUGIN = nullptr;
 
 Plugin* Plugin::GetActiveInstance()
@@ -115,4 +116,5 @@ void Plugin::OnQueryCvarValueFinished(QueryCvarCookie_t iCookie,
 void Plugin::OnEdictAllocated(edict_t* edict) { }
 void Plugin::OnEdictFreed(const edict_t* edict) { }
 void Plugin::FireGameEvent(KeyValues* event) { }
+
 }

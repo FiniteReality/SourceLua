@@ -14,29 +14,6 @@
 
 namespace SourceLua
 {
-Lua::Script* Plugin::GetScriptFromState(lua_State* L)
-{
-    lua_getfield(_G, LUA_REGISTRYINDEX, SOURCELUA_SCRIPT_KEY);
-
-    if (lua_pushthread(L))
-        throw new std::runtime_error(
-            "GetScriptFromState called on main state");
-
-    // Move thread to global state so we can call gettable
-    lua_xmove(L, _G, 1);
-    lua_gettable(_G, -2);
-
-    if (!lua_islightuserdata(_G, -1))
-        throw new std::runtime_error(
-            "GetScriptFromState script was not light userdata");
-
-    auto script = static_cast<Lua::Script*>(lua_touserdata(_G, -1));
-
-    // Pop table and userdata
-    lua_pop(_G, 2);
-
-    return script;
-}
 
 const char* Plugin::RunLuaString(const char* code)
 {
@@ -66,7 +43,11 @@ void Plugin::LoadLua()
     lua_createtable(_G, 0, 1);
     lua_setfield(_G, LUA_REGISTRYINDEX, SOURCELUA_SCRIPT_KEY);
 
+    lua_createtable(_G, 0, 1);
+    lua_setfield(_G, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_CACHE_KEY);
+
     lua_pushlightuserdata(_G, _scheduler.get());
     lua_setfield(_G, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_KEY);
 }
+
 }

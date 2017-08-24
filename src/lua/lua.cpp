@@ -18,28 +18,30 @@ Script::Script(lua_State* L)
     if (_L == nullptr)
         throw new std::runtime_error("L must not be null");
 
+    // Push the table now so that we don't have to re-order the stack
+    lua_getfield(_L, LUA_REGISTRYINDEX, SOURCELUA_SCRIPT_KEY);
     _T = lua_newthread(_L);
 
     if (_T == nullptr)
         throw new std::runtime_error("Could not initialize Lua thread");
 
-    // TODO: do we need to remove these objects on script destruction?
-    // Will we ever have any problems with Lua threads continuing after their
-    // Script has been deallocated?
-
-    lua_getfield(_L, LUA_REGISTRYINDEX, SOURCELUA_SCRIPT_KEY);
-    lua_pushvalue(_L, -2);
-    lua_pushlightuserdata(_L, this);
-    lua_settable(_L, -3);
-
-    // Pop the thread and the table from the parent stack
-    lua_pop(_L, 2);
+    // Reference the thread to make sure it doesn't get GC'd
+    thread_ref = luaL_ref(_L, -2);
+    lua_pop(_L, 1);
 }
 
 Script::Script(lua_State* L, const char* name)
     : Script(L)
 {
     _name = name;
+}
+
+Script::~Script()
+{
+    // Remove the reference to allow GC to occur
+    lua_getfield(_L, LUA_REGISTRYINDEX, SOURCELUA_SCRIPT_KEY);
+    luaL_unref(_L, -1, thread_ref);
+    lua_pop(_L, 1);
 }
 
 void Script::Run(const char* code)
@@ -65,9 +67,9 @@ void Script::Run(const char* code, size_t length)
         auto scheduler = static_cast<Scheduling::Scheduler*>(
             lua_touserdata(_T, -1));
 
-        lua_pop(_T, 1); // ensure the function is at the top of the stack
+        lua_pop(_T, 1);
 
-        scheduler->EnqueueCoroutine(_T, -1, 0);
+        scheduler->EnqueueCoroutine(_T, 0);
         break;
     }
     case LUA_ERRSYNTAX:

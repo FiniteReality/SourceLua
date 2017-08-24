@@ -15,5 +15,6 @@
 
 #define SOURCELUA_SCRIPT_KEY STR(SOURCELUA_NAME) "_script"
 #define SOURCELUA_SCHEDULER_KEY STR(SOURCELUA_NAME) "_scheduler"
+#define SOURCELUA_SCHEDULER_CACHE_KEY STR(SOURCELUA_NAME) "_scheduler_cache"
 
 #endif /* _luajit_hpp_ */

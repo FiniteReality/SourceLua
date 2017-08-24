@@ -26,7 +26,7 @@ class Script
         Script& operator=(const Script&) = delete;
         Script(Script&&) = delete;
         Script& operator=(Script&&) = delete;
-        ~Script() = default;
+        ~Script();
 
         void Run(const char* code);
         void Run(const char* code, size_t length);
@@ -34,6 +34,7 @@ class Script
     private:
         lua_State* _L;
         lua_State* _T;
+        int thread_ref;
         const char* _name;
 };
 

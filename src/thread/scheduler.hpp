@@ -11,18 +11,17 @@
 #include <mutex>
 #include <tbb/concurrent_priority_queue.h>
 #include <thread>
-
 #include <lua/lua.hpp>
 
 namespace SourceLua
 {
 namespace Scheduling
 {
+
 class Scheduler
 {
     public:
-        void EnqueueCoroutine(lua_State* L, int idx,
-            unsigned int delay_msec);
+        void EnqueueCoroutine(lua_State* L, unsigned int delay_msec);
 
         void Tick();
 
@@ -33,8 +32,7 @@ class Scheduler
 
         struct TaskInfo
         {
-            TaskInfo(lua_State* L, int idx,
-                uint64_t resume_at, uint64_t now);
+            TaskInfo(lua_State* L, int ref, int64_t resume_at, int64_t now);
             TaskInfo(const TaskInfo&) = default;
             TaskInfo& operator=(const TaskInfo&) = default;
             TaskInfo(TaskInfo&&) = default;
@@ -42,26 +40,28 @@ class Scheduler
             ~TaskInfo() = default;
 
             lua_State* state;
-            int idx;
-            uint64_t resume_at_millis;
-            uint64_t enqueued_at;
+            int ref;
+            int64_t resume_at;
+            int64_t enqueued_at;
 
-            friend bool operator<(const TaskInfo& lhs, const TaskInfo& rhs)
+            friend inline bool operator< (const TaskInfo& lhs,
+                const TaskInfo& rhs)
             {
-                return lhs.resume_at_millis
-                     < rhs.resume_at_millis;
+                return std::tie(lhs.resume_at, lhs.enqueued_at) <
+                       std::tie(rhs.resume_at, rhs.enqueued_at);
             }
         };
 
         tbb::concurrent_priority_queue<std::unique_ptr<TaskInfo>> tasks;
 
-        std::atomic_bool running;
+        std::atomic_bool run;
 
         std::thread thread;
         std::mutex resume_lock;
         std::condition_variable thread_available;
 };
 }
+
 }
 
 #endif /* _scheduler_hpp_ */

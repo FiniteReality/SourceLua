@@ -1,5 +1,6 @@
-# vscode files
-.vscode/*
+# Project files
+.kdev4/*
+*.kdev4
 
 # build files
 build/*

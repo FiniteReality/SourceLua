@@ -11,7 +11,9 @@ namespace Lua
 {
 namespace Threading
 {
+
     int luaopen_thread(lua_State* L);
+
 }
 }
 }
