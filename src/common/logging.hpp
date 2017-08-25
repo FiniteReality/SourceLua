@@ -25,8 +25,7 @@ enum class LogLevel
 template <LogLevel L, typename... TArgs>
 void LogMessage(const char* fmt, TArgs... args)
 {
-    // TODO: figure out how to make these constant conditions for
-    // static_assert
+    // TODO: figure out how to make these constant conditions
     if (fmt == nullptr)
         throw new std::runtime_error("format string must not be NULL");
 

@@ -10,6 +10,7 @@ using namespace SourceLua;
 CON_COMMAND(sl_version,
     "Prints the currently running " SOURCELUA_NAME " Version")
 {
+    (void)args;
     LogMessage<LogLevel::Information>(
         "Version %s by %s\nLuaJIT Version: %s %s\n",
         SOURCELUA_VERSION, SOURCELUA_AUTHOR,
@@ -38,6 +39,7 @@ CON_COMMAND(sl_eval, "Evaluate Lua code")
 CON_COMMAND_F(sl_force_panic, "Forces the Lua state to panic",
     FCVAR_SERVER_CAN_EXECUTE | FCVAR_HIDDEN)
 {
+    (void)args;
     auto plugin = Plugin::GetActiveInstance();
     plugin->CausePanic();
 }

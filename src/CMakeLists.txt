@@ -8,11 +8,12 @@ include_directories(${SOURCE_SDK_INCLUDE_DIRS})
 
 set(SOURCE_FILES
 
-lua/lua.cpp lua/scheduler.cpp lua/libraries/thread.cpp
-lua/libraries/console.cpp
+lua/event.cpp lua/lua.cpp lua/scheduler.cpp
 
-plugin/plugin.commands.cpp plugin/plugin.cvars.cpp plugin/plugin.cpp
-plugin/plugin.events.cpp
+lua/libraries/console.cpp lua/libraries/event.cpp lua/libraries/thread.cpp
+
+plugin/plugin.commands.cpp plugin/plugin.cvars.cpp plugin/plugin.events.cpp
+plugin/plugin.cpp
 
 main.cpp)
 

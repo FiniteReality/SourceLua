@@ -1,6 +1,10 @@
 #ifndef _lualibthread_hpp_
 #define _lualibthread_hpp_
 
+/*
+ * Thread Scheduler utilities for Lua
+ */
+
 #include <common/luajit.hpp>
 
 namespace SourceLua

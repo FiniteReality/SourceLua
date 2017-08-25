@@ -8,6 +8,7 @@
 
 namespace SourceLua
 {
+
 static Plugin* PLUGIN = nullptr;
 
 Plugin* Plugin::GetActiveInstance()
@@ -23,11 +24,10 @@ Plugin* Plugin::GetActiveInstance()
 bool Plugin::Load(CreateInterfaceFn interfaceFactory,
                   CreateInterfaceFn gameServerFactory)
 {
+    (void)gameServerFactory;
     ConnectTier1Libraries(&interfaceFactory, 1);
     ConnectTier2Libraries(&interfaceFactory, 1);
 
-    _G = luaL_newstate();
-    _scheduler = std::make_unique<Lua::Scheduler>();
     _engine = static_cast<IVEngineServer*>(
         interfaceFactory(INTERFACEVERSION_VENGINESERVER, nullptr)
     );
@@ -72,7 +72,6 @@ bool Plugin::Load(CreateInterfaceFn interfaceFactory,
 void Plugin::Unload()
 {
     _scheduler->Stop();
-    lua_close(_G);
 
     ConVar_Unregister();
     DisconnectTier2Libraries();
@@ -92,43 +91,86 @@ void Plugin::SetCommandClient(int index)
 
 void Plugin::GameFrame(bool simulating)
 {
+    (void)simulating;
     _scheduler->Tick();
 }
 
-void Plugin::Pause() { }
+void Plugin::Pause()
+{
+    _scheduler->Stop();
+}
 void Plugin::UnPause() { }
-void Plugin::LevelInit(char const* mapName) { }
+void Plugin::LevelInit(char const* mapName)
+{
+    _levelChangeEvent->Fire([&](lua_State* L)
+    {
+        lua_pushstring(L, mapName);
+        return 1;
+    });
+}
 void Plugin::ServerActivate(edict_t* pEdictList, int edictCount,
-                            int clientMax) { }
+                            int clientMax)
+{
+    (void)pEdictList;(void)edictCount;(void)clientMax;
+}
 void Plugin::LevelShutdown() { }
 PLUGIN_RESULT Plugin::ClientConnect(bool* allowConnect,
                                     edict_t* pEntity, const char* pName,
                                     const char* ipAddress, char* reject,
                                     int maxRejectLen)
 {
+    (void)allowConnect;(void)pEntity;(void)pName;
+    (void)ipAddress;(void)reject;(void)maxRejectLen;
     return PLUGIN_CONTINUE;
 }
-void Plugin::ClientActive(edict_t* pEntity) { }
-void Plugin::ClientDisconnect(edict_t* pEntity) { }
+void Plugin::ClientActive(edict_t* pEntity)
+{
+    (void)pEntity;
+}
+void Plugin::ClientDisconnect(edict_t* pEntity)
+{
+    (void)pEntity;
+}
 void Plugin::ClientPutInServer(edict_t* pEntity,
-                               char const* playerName) { }
-void Plugin::ClientSettingsChanged(edict_t* pEntity) { }
+                               char const* playerName)
+{
+    (void)pEntity;(void)playerName;
+}
+void Plugin::ClientSettingsChanged(edict_t* pEntity)
+{
+    (void)pEntity;
+}
 PLUGIN_RESULT Plugin::ClientCommand(edict_t* pEntity,
                                     const CCommand& args)
 {
+    (void)pEntity;(void)args;
     return PLUGIN_CONTINUE;
 }
 PLUGIN_RESULT Plugin::NetworkIDValidated(const char* pName,
         const char* networkId)
 {
+    (void)pName;(void)networkId;
     return PLUGIN_CONTINUE;
 }
 void Plugin::OnQueryCvarValueFinished(QueryCvarCookie_t iCookie,
                                       edict_t* pEntity,
                                       EQueryCvarValueStatus eStatus,
-                                      const char* name, const char* value) { }
-void Plugin::OnEdictAllocated(edict_t* edict) { }
-void Plugin::OnEdictFreed(const edict_t* edict) { }
-void Plugin::FireGameEvent(KeyValues* event) { }
+                                      const char* name, const char* value)
+{
+    (void)iCookie;(void)pEntity;(void)eStatus;(void)name;(void)value;
+}
+void Plugin::OnEdictAllocated(edict_t* edict)
+{
+    (void)edict;
+}
+void Plugin::OnEdictFreed(const edict_t* edict)
+{
+    (void)edict;
+}
+void Plugin::FireGameEvent(KeyValues* event)
+{
+    (void)event;
+}
+
 }
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on;

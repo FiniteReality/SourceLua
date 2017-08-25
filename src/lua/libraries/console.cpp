@@ -10,9 +10,6 @@ namespace Lua
 namespace Libraries
 {
 
-// TODO:
-// - Support messages to client
-
 int LogMessage(lua_State* L)
 {
     const char* msg = luaL_checkstring(L, 1);

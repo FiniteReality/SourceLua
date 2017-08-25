@@ -19,8 +19,11 @@ namespace SourceLua
 namespace Lua
 {
 
-SourceLua::Lua::SourceLua::Lua::Scheduler::TaskInfo::TaskInfo(lua_State* L, int ref, int64_t resume_at, int64_t now)
-
+Scheduler::TaskInfo::TaskInfo(lua_State* L, int _ref,
+                                int64_t _resume_at_millis, int64_t now)
+: state(L), ref(_ref), resume_at(_resume_at_millis),
+enqueued_at(now)
+{ }
 
 void Scheduler::EnqueueCoroutine(lua_State* L, unsigned int delay_msec)
 {

@@ -8,6 +8,7 @@
 #include <memory>
 
 #include <common/source.hpp>
+#include <lua/event.hpp>
 #include <lua/scheduler.hpp>
 
 namespace SourceLua
@@ -16,6 +17,13 @@ namespace SourceLua
 class Plugin : public IServerPluginCallbacks, public IGameEventListener
 {
     public:
+        Plugin();
+        Plugin(const Plugin&) = default;
+        Plugin& operator=(const Plugin&) = default;
+        Plugin(Plugin&&) = default;
+        Plugin& operator=(Plugin&&) = default;
+        ~Plugin() = default;
+
         static Plugin* GetActiveInstance();
 
         bool Load(CreateInterfaceFn interfaceFactory,
@@ -72,13 +80,13 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
 #endif /* SOURCELUA_DEBUG */
 
     private:
-
         void LoadLua();
 
         int _commandIndex;
 
-        lua_State* _G;
+        std::unique_ptr<lua_State, std::function<void(lua_State*)>> _G;
         std::unique_ptr<Lua::Scheduler> _scheduler;
+        std::unique_ptr<Lua::Event> _levelChangeEvent;
 
         IVEngineServer* _engine;
         IGameEventManager2* _eventManager;

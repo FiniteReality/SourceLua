@@ -15,7 +15,7 @@ int Sleep(lua_State* L)
 
     lua_getfield(L, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_KEY);
     auto scheduler = static_cast<Lua::Scheduler*>(
-                         lua_touserdata(L, -1));
+        lua_touserdata(L, -1));
 
     lua_pop(L, 1);
 
@@ -26,12 +26,11 @@ int Sleep(lua_State* L)
 
 int Spawn(lua_State* L)
 {
-    luaL_argcheck(L, lua_isfunction(L, 1) && !lua_iscfunction(L, 1), 1,
-                  "Lua function expected");
+    luaL_checklfunction(L, 1);
 
     lua_getfield(L, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_KEY);
     auto scheduler = static_cast<Lua::Scheduler*>(
-                         lua_touserdata(L, -1));
+        lua_touserdata(L, -1));
 
     lua_pop(L, 1);
 
