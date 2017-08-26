@@ -1,13 +1,9 @@
-/*
- * Main plugin code
- */
-
 #include <stdexcept>
 
 #include <common/luajit.hpp>
 #include <common/logging.hpp>
 #include <common/version.hpp>
-#include <lua/lua.hpp>
+#include <lua/script.hpp>
 #include <plugin/plugin.hpp>
 
 #include <lua/libraries/console.hpp>
@@ -19,7 +15,6 @@ namespace SourceLua
 
 Plugin::Plugin()
     : _G{luaL_newstate(), [](lua_State* L){ lua_close(L); }},
-    _scheduler{new Lua::Scheduler},
     _levelChangeEvent{new Lua::Event{_G.get(), "ChangeLevel"}}
 {
 }
@@ -67,10 +62,10 @@ void Plugin::LoadLua()
     lua_setfield(_G.get(), LUA_REGISTRYINDEX, SOURCELUA_SCRIPT_KEY);
 
     lua_createtable(_G.get(), 0, 1);
-    lua_setfield(_G.get(), LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_CACHE_KEY);
-
-    lua_pushlightuserdata(_G.get(), _scheduler.get());
     lua_setfield(_G.get(), LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_KEY);
+
+    lua_createtable(_G.get(), 0, 1);
+    lua_setfield(_G.get(), LUA_REGISTRYINDEX, SOURCELUA_EVENT_CACHE_KEY);
 }
 
 }

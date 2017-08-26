@@ -1,10 +1,6 @@
 #ifndef _libluaevent_hpp_
 #define _libluaevent_hpp_
 
-/*
- * Event utilities for Lua
- */
-
 #include <common/luajit.hpp>
 #include <lua/event.hpp>
 

@@ -1,10 +1,6 @@
 #ifndef _logging_hpp_
 #define _logging_hpp_
 
-/*
- * Logging abstractions
- */
-
 #include <stdexcept>
 #include <string>
 

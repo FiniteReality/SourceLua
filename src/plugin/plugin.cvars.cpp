@@ -1,7 +1,3 @@
-/*
- * CVars exposed by SourceLua.
- */
-
 #include <plugin/plugin.hpp>
 
 // TODO: decide how to expose these to parts of the plugin

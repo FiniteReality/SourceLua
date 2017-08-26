@@ -1,15 +1,11 @@
 #ifndef _plugin_hpp_
 #define _plugin_hpp_
 
-/*
- * Main plugin definition
- */
-
 #include <memory>
 
 #include <common/source.hpp>
 #include <lua/event.hpp>
-#include <lua/scheduler.hpp>
+#include <thread/scheduler.hpp>
 
 namespace SourceLua
 {
@@ -18,10 +14,10 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
 {
     public:
         Plugin();
-        Plugin(const Plugin&) = default;
-        Plugin& operator=(const Plugin&) = default;
-        Plugin(Plugin&&) = default;
-        Plugin& operator=(Plugin&&) = default;
+        Plugin(const Plugin&) = delete;
+        Plugin& operator=(const Plugin&) = delete;
+        Plugin(Plugin&&) = delete;
+        Plugin& operator=(Plugin&&) = delete;
         ~Plugin() = default;
 
         static Plugin* GetActiveInstance();
@@ -85,7 +81,6 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
         int _commandIndex;
 
         std::unique_ptr<lua_State, std::function<void(lua_State*)>> _G;
-        std::unique_ptr<Lua::Scheduler> _scheduler;
         std::unique_ptr<Lua::Event> _levelChangeEvent;
 
         IVEngineServer* _engine;

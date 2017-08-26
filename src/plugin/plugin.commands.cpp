@@ -1,7 +1,3 @@
-/*
- * Commands exposed by SourceLua
- */
-
 #include <common/logging.hpp>
 #include <plugin/plugin.hpp>
 

@@ -3,7 +3,7 @@
 #include <common/luajit.hpp>
 #include <common/logging.hpp>
 #include <common/version.hpp>
-#include <lua/lua.hpp>
+#include <lua/script.hpp>
 #include <plugin/plugin.hpp>
 
 namespace SourceLua
@@ -57,7 +57,7 @@ bool Plugin::Load(CreateInterfaceFn interfaceFactory,
     }
 
     LoadLua();
-    _scheduler->Start();
+    Threading::Scheduler::Start(_G.get());
 
     ConVar_Register(0);
 
@@ -71,7 +71,7 @@ bool Plugin::Load(CreateInterfaceFn interfaceFactory,
 
 void Plugin::Unload()
 {
-    _scheduler->Stop();
+    Threading::Scheduler::Stop();
 
     ConVar_Unregister();
     DisconnectTier2Libraries();
@@ -92,13 +92,9 @@ void Plugin::SetCommandClient(int index)
 void Plugin::GameFrame(bool simulating)
 {
     (void)simulating;
-    _scheduler->Tick();
 }
 
-void Plugin::Pause()
-{
-    _scheduler->Stop();
-}
+void Plugin::Pause() { }
 void Plugin::UnPause() { }
 void Plugin::LevelInit(char const* mapName)
 {

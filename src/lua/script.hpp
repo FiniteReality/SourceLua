@@ -1,10 +1,6 @@
 #ifndef _lua_hpp_
 #define _lua_hpp_
 
-/*
- * Lua abstractions
- */
-
 #include <cstdint>
 #include <string>
 #include <type_traits>

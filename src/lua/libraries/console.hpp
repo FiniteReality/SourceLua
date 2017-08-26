@@ -1,10 +1,6 @@
 #ifndef _lualibconsole_hpp_
 #define _lualibconsole_hpp_
 
-/*
- * Console utilities for Lua
- */
-
 #include <common/luajit.hpp>
 
 namespace SourceLua

@@ -1,10 +1,6 @@
 #ifndef _source_hpp_
 #define _source_hpp_
 
-/*
- * Common includes for Source server plugins
- */
-
 #ifdef GNUC
 // NOTE: this is only defined because the source SDK isn't valid C++11
 #pragma GCC system_header

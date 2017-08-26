@@ -1,11 +1,8 @@
-/*
- * Lua abstractions
- */
 #include <stdexcept>
 
 #include <common/logging.hpp>
-#include <lua/lua.hpp>
-#include <lua/scheduler.hpp>
+#include <lua/script.hpp>
+#include <thread/scheduler.hpp>
 
 namespace SourceLua
 {
@@ -63,13 +60,8 @@ void Script::Run(const char* code, size_t length)
     {
         case 0: // No error
             {
-                lua_getfield(_T, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_KEY);
-                auto scheduler = static_cast<Lua::Scheduler*>(
-                    lua_touserdata(_T, -1));
-
-                lua_pop(_T, 1);
-
-                scheduler->EnqueueCoroutine(_T, 0);
+                auto task = Threading::CreateDelayedTask(_T, 0);
+                Threading::Scheduler::EnqueueTask(std::move(task));
                 break;
             }
 

@@ -1,7 +1,3 @@
-/*
- * Expose the plugin to Source
- */
-
 #include <common/logging.hpp>
 #include <common/source.hpp>
 #include <common/version.hpp>
