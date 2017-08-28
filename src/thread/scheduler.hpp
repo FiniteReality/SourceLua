@@ -12,10 +12,10 @@ namespace Threading
 namespace Scheduler
 {
 
-void EnqueueTask(std::unique_ptr<Task> task) noexcept;
+void EnqueueTask(std::unique_ptr<Task> task);
 
-void Start(lua_State* L) noexcept;
-void Stop() noexcept;
+void Start(lua_State* L);
+void Stop();
 bool IsRunning() noexcept;
 
 }

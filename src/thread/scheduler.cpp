@@ -1,6 +1,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <chrono>
+#include <future>
 #include <memory>
 #include <mutex>
 #include <tbb/concurrent_queue.h>
@@ -23,7 +24,7 @@ static atomic_bool scheduler_running;
 
 static void TaskThread(lua_State* L) noexcept;
 
-void Scheduler::EnqueueTask(unique_ptr<Task> task) noexcept
+void Scheduler::EnqueueTask(unique_ptr<Task> task)
 {
     int64_t now =
         chrono::duration_cast<chrono::milliseconds>(
@@ -37,17 +38,24 @@ void Scheduler::EnqueueTask(unique_ptr<Task> task) noexcept
     scheduler_condition.notify_all();
 }
 
-void Scheduler::Start(lua_State* L) noexcept
+void Scheduler::Start(lua_State* L)
 {
     scheduler_running = true;
     scheduler_thread = std::thread(TaskThread, L);
 }
 
-void Scheduler::Stop() noexcept
+void Scheduler::Stop()
 {
     scheduler_running = false;
     scheduler_condition.notify_all();
-    scheduler_thread.join();
+
+    // N.B. this approach spawns a new thread to do the work of waiting
+    // Is there a better way to do this?
+    auto future = async(launch::async, &thread::join, &scheduler_thread);
+    if (future.wait_for(chrono::seconds(5)) == future_status::timeout)
+    {
+        throw new runtime_error("Could not abort scheduler thread");
+    }
 }
 
 bool Scheduler::IsRunning() noexcept
