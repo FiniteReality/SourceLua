@@ -1,6 +1,7 @@
 #ifndef _event_hpp_
 #define _event_hpp_
 
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -22,7 +23,7 @@ class Event
         Event(Event&&) = delete;
         Event& operator=(Event &&) = delete;
 
-        void Fire(std::function<int(lua_State*)> pushArgs);
+        void Fire(std::function<int(lua_State*)> pushArgs = nullptr);
 
         void Connect(lua_State* L);
 

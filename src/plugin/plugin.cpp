@@ -15,7 +15,11 @@ namespace SourceLua
 
 Plugin::Plugin()
     : _G{luaL_newstate(), [](lua_State* L){ lua_close(L); }},
-    _levelChangeEvent{new Lua::Event{_G.get(), "ChangeLevel"}}
+    _gameTickEvent{new Lua::Event{_G.get(), "gameTicked"}},
+    _levelChangingEvent{new Lua::Event{_G.get(), "levelChanging"}},
+    _levelChangedEvent{new Lua::Event{_G.get(), "levelChanged"}},
+    _pauseEvent{new Lua::Event{_G.get(), "paused"}},
+    _unPauseEvent{new Lua::Event{_G.get(), "unpaused"}}
 {
 }
 

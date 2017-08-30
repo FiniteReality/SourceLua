@@ -4,7 +4,7 @@ include(source_sdk)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${LUAJIT_INCLUDE_DIR})
 include_directories(${TBB_INCLUDE_DIRS})
-include_directories(${SOURCE_SDK_INCLUDE_DIRS})
+include_directories(SYSTEM ${SOURCE_SDK_INCLUDE_DIRS})
 
 set(SOURCE_FILES
 

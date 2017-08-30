@@ -25,5 +25,25 @@ index e5b720e2..f1f77f09 100644
 +	// EDIT: change from == to <= in COMPILE_TIME_ASSERT
 +	CInterlockedIntT() : m_value( 0 ) 				{ COMPILE_TIME_ASSERT( sizeof(T) <= sizeof(long) ); }
  	CInterlockedIntT( T value ) : m_value( value ) 	{}
- 
+
  	T GetRaw() const				{ return m_value; }
+diff --git a/mp/src/public/tier1/utlblockmemory.h b/mp/src/public/tier1/utlblockmemory.h
+index b4a254ff..04f3f0bf 100644
+--- a/mp/src/public/tier1/utlblockmemory.h
++++ b/mp/src/public/tier1/utlblockmemory.h
+@@ -135,10 +135,11 @@ CUtlBlockMemory<T,I>::~CUtlBlockMemory()
+ template< class T, class I >
+ void CUtlBlockMemory<T,I>::Swap( CUtlBlockMemory< T, I > &mem )
+ {
+-	swap( m_pMemory, mem.m_pMemory );
+-	swap( m_nBlocks, mem.m_nBlocks );
+-	swap( m_nIndexMask, mem.m_nIndexMask );
+-	swap( m_nIndexShift, mem.m_nIndexShift );
++	// EDIT: use std::swap which is defined (Is this correct?)
++	std::swap( m_pMemory, mem.m_pMemory );
++	std::swap( m_nBlocks, mem.m_nBlocks );
++	std::swap( m_nIndexMask, mem.m_nIndexMask );
++	std::swap( m_nIndexShift, mem.m_nIndexShift );
+ }
+
+

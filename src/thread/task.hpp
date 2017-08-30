@@ -2,6 +2,7 @@
 #define _task_hpp_
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 
 #include <common/luajit.hpp>

@@ -81,7 +81,12 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
         int _commandIndex;
 
         std::unique_ptr<lua_State, std::function<void(lua_State*)>> _G;
-        std::unique_ptr<Lua::Event> _levelChangeEvent;
+
+        std::unique_ptr<Lua::Event> _gameTickEvent;
+        std::unique_ptr<Lua::Event> _levelChangingEvent;
+        std::unique_ptr<Lua::Event> _levelChangedEvent;
+        std::unique_ptr<Lua::Event> _pauseEvent;
+        std::unique_ptr<Lua::Event> _unPauseEvent;
 
         IVEngineServer* _engine;
         IGameEventManager2* _eventManager;

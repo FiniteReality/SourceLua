@@ -91,14 +91,24 @@ void Plugin::SetCommandClient(int index)
 
 void Plugin::GameFrame(bool simulating)
 {
-    (void)simulating;
+    _gameTickEvent->Fire([&](lua_State* L)
+    {
+        lua_pushboolean(L, simulating ? 1 : 0);
+        return 1;
+    });
 }
 
-void Plugin::Pause() { }
-void Plugin::UnPause() { }
+void Plugin::Pause()
+{
+    _pauseEvent->Fire();
+}
+void Plugin::UnPause()
+{
+    _pauseEvent->Fire();
+}
 void Plugin::LevelInit(char const* mapName)
 {
-    _levelChangeEvent->Fire([&](lua_State* L)
+    _levelChangingEvent->Fire([&](lua_State* L)
     {
         lua_pushstring(L, mapName);
         return 1;
@@ -107,7 +117,23 @@ void Plugin::LevelInit(char const* mapName)
 void Plugin::ServerActivate(edict_t* pEdictList, int edictCount,
                             int clientMax)
 {
-    (void)pEdictList;(void)edictCount;(void)clientMax;
+    _levelChangedEvent->Fire([&](lua_State* L)
+    {
+        lua_createtable(L, edictCount, 0);
+
+        // TODO: is this safe? we could possibly read invalid memory this way
+        int i;
+        edict_t* edict;
+        for (i = 0, edict = pEdictList; i < edictCount; i++, edict++)
+        {
+            lua_pushinteger(L, _engine->IndexOfEdict(edict));
+            lua_rawseti(L, -2, i + 1);
+        }
+
+        lua_pushinteger(L, clientMax);
+
+        return 2;
+    });
 }
 void Plugin::LevelShutdown() { }
 PLUGIN_RESULT Plugin::ClientConnect(bool* allowConnect,
