@@ -3,7 +3,7 @@
 
 #include <functional>
 #include <memory>
-#include <vector>
+#include <unordered_set>
 
 #include <common/luajit.hpp>
 
@@ -15,30 +15,26 @@ namespace Lua
 class Event
 {
     public:
-        Event(lua_State* L);
-        Event(lua_State* L, const char* _name);
+        Event(lua_State* L, const std::string name);
         // Does not support copy or move operations
         Event(const Event&) = delete;
         Event& operator=(const Event&) = delete;
         Event(Event&&) = delete;
         Event& operator=(Event &&) = delete;
+        ~Event();
 
         void Fire(std::function<int(lua_State*)> pushArgs = nullptr);
 
-        void Connect(lua_State* L);
+        int Connect(lua_State* L);
+        bool Disconnect(int ref);
 
     private:
 
         lua_State* GetThread();
 
-        struct Connection
-        {
-            int ref;
-        };
-
-        std::vector<Connection> connections;
-        lua_State* L;
-        const char* name;
+        std::unordered_set<int> _connections;
+        lua_State* _L;
+        const std::string _name;
 };
 
 }

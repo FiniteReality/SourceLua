@@ -93,7 +93,7 @@ static void TaskThread(lua_State* L) noexcept
                 if (task->prepare != nullptr)
                     task->prepare(task.get(), L);
 
-                lua_getfield(L, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_KEY);
+                lua_getfield(L, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_CACHE_KEY);
                 lua_rawgeti(L, -1, task->thread_reference);
                 lua_State* T = lua_tothread(L, -1);
 

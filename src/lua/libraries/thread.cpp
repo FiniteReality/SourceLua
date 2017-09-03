@@ -3,19 +3,15 @@
 #include <lua/libraries/thread.hpp>
 #include <thread/scheduler.hpp>
 
-namespace SourceLua
-{
-namespace Lua
-{
-namespace Libraries
-{
+using namespace SourceLua::Lua;
+using namespace SourceLua::Threading;
 
 int Sleep(lua_State* L)
 {
     double delay = luaL_checknumber(L, 1);
 
-    auto task = Threading::CreateDelayedTask(L, delay * 1000);
-    Threading::Scheduler::EnqueueTask(std::move(task));
+    auto task = CreateDelayedTask(L, delay * 1000);
+    Scheduler::EnqueueTask(std::move(task));
     return lua_yield(L, 0);
 }
 
@@ -28,8 +24,8 @@ int Spawn(lua_State* L)
     lua_pushvalue(L, 1);
     lua_xmove(L, T, 1);
 
-    auto task = Threading::CreateDelayedTask(T, 0);
-    Threading::Scheduler::EnqueueTask(std::move(task));
+    auto task = CreateDelayedTask(T, 0);
+    Scheduler::EnqueueTask(std::move(task));
     return 0;
 }
 
@@ -40,13 +36,10 @@ static const luaL_Reg thread_funcs[] =
     {NULL, NULL}
 };
 
-int luaopen_thread(lua_State* L)
+int Libraries::luaopen_thread(lua_State* L)
 {
     luaL_register(L, "thread", thread_funcs);
     return 1;
 }
 
-}
-}
-}
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on;

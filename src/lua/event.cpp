@@ -4,33 +4,29 @@
 #include <thread/task.hpp>
 #include <thread/scheduler.hpp>
 
-namespace SourceLua
-{
-namespace Lua
-{
+using namespace SourceLua::Lua;
 
-Event::Event(lua_State* _L)
-    : connections(), L(_L), name("Unknown")
-{ }
-Event::Event::Event(lua_State* L, const char* _name)
-    : Event(L)
+Event::Event(lua_State* L, const std::string name)
+    : _connections(), _L(L), _name(name)
 {
-    name = _name;
     Libraries::register_event(_name, this);
+}
+
+Event::~Event()
+{
+    Libraries::deregister_event(_name);
 }
 
 void Event::Fire(std::function<int(lua_State*)> pushArgs)
 {
-    LogMessage<LogLevel::Debug>("Firing event %s", name);
-
-    for (Connection& connection : connections)
+    for (int connection : _connections)
     {
-        auto task = Threading::CreateEventedTask(connection.ref, pushArgs);
+        auto task = Threading::CreateEventedTask(connection, pushArgs);
         Threading::Scheduler::EnqueueTask(std::move(task));
     }
 }
 
-void Event::Connect(lua_State* L)
+int Event::Connect(lua_State* L)
 {
     // N.B. function is at top of stack
 
@@ -40,12 +36,14 @@ void Event::Connect(lua_State* L)
 
     lua_pop(L, 1);
 
-    Connection connection;
-    connection.ref = ref;
-    connections.emplace_back(std::move(connection));
+    _connections.insert(ref);
+    return ref;
+}
+
+bool Event::Disconnect(int ref)
+{
+    return _connections.erase(ref) > 0;
 }
 
 
-}
-}
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on;

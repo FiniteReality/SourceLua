@@ -7,7 +7,7 @@ using namespace std;
 unique_ptr<Threading::Task> Threading::CreateDelayedTask(lua_State* L,
     int delay_ms) noexcept
 {
-    lua_getfield(L, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_KEY);
+    lua_getfield(L, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_CACHE_KEY);
     lua_pushthread(L);
     int ref = luaL_ref(L, -2);
     lua_pop(L, 1);
@@ -27,7 +27,7 @@ unique_ptr<Threading::Task> Threading::CreateEventedTask(int func_ref,
     unique_ptr<Threading::Task> task = std::make_unique<Threading::Task>();
     task->pushArgs = pushArgs;
     task->prepare = [func_ref](Threading::Task* task, lua_State* L){
-        lua_getfield(L, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_KEY);
+        lua_getfield(L, LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_CACHE_KEY);
 
         lua_State* T = lua_newthread(L);
         lua_getfield(T, LUA_REGISTRYINDEX, SOURCELUA_EVENT_CACHE_KEY);

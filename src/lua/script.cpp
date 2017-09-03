@@ -16,7 +16,7 @@ Script::Script(lua_State* L)
         throw new std::runtime_error("L must not be null");
 
     // Push the table now so that we don't have to re-order the stack
-    lua_getfield(_L, LUA_REGISTRYINDEX, SOURCELUA_SCRIPT_KEY);
+    lua_getfield(_L, LUA_REGISTRYINDEX, SOURCELUA_SCRIPT_CACHE_KEY);
     _T = lua_newthread(_L);
 
     if (_T == nullptr)
@@ -36,7 +36,7 @@ Script::Script(lua_State* L, const char* name)
 Script::~Script()
 {
     // Remove the reference to allow GC to occur
-    lua_getfield(_L, LUA_REGISTRYINDEX, SOURCELUA_SCRIPT_KEY);
+    lua_getfield(_L, LUA_REGISTRYINDEX, SOURCELUA_SCRIPT_CACHE_KEY);
     luaL_unref(_L, -1, thread_ref);
     lua_pop(_L, 1);
 }

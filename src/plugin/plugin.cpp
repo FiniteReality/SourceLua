@@ -63,10 +63,10 @@ void Plugin::LoadLua()
     lua_cpcall(_G.get(), luaopen_plugin, nullptr);
 
     lua_createtable(_G.get(), 0, 1);
-    lua_setfield(_G.get(), LUA_REGISTRYINDEX, SOURCELUA_SCRIPT_KEY);
+    lua_setfield(_G.get(), LUA_REGISTRYINDEX, SOURCELUA_SCRIPT_CACHE_KEY);
 
     lua_createtable(_G.get(), 0, 1);
-    lua_setfield(_G.get(), LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_KEY);
+    lua_setfield(_G.get(), LUA_REGISTRYINDEX, SOURCELUA_SCHEDULER_CACHE_KEY);
 
     lua_createtable(_G.get(), 0, 1);
     lua_setfield(_G.get(), LUA_REGISTRYINDEX, SOURCELUA_EVENT_CACHE_KEY);
