@@ -6,15 +6,15 @@
 
 using namespace SourceLua::Lua;
 
-Event::Event(lua_State* L, const std::string name)
-    : _connections(), _L(L), _name(name)
+Event::Event(lua_State* L, const std::string _name)
+    : name(_name), _connections(), _L(L)
 {
-    Libraries::register_event(_name, this);
+    Libraries::register_event(name, this);
 }
 
 Event::~Event()
 {
-    Libraries::deregister_event(_name);
+    Libraries::deregister_event(name);
 }
 
 void Event::Fire(std::function<int(lua_State*)> pushArgs)

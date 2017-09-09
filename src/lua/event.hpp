@@ -28,13 +28,14 @@ class Event
         int Connect(lua_State* L);
         bool Disconnect(int ref);
 
+        const std::string name;
+
     private:
 
         lua_State* GetThread();
 
         std::unordered_set<int> _connections;
         lua_State* _L;
-        const std::string _name;
 };
 
 }

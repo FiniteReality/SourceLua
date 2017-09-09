@@ -9,10 +9,12 @@
 #error "LuaJIT wasn't included properly"
 #endif
 
+// Extra useful definitions which aren't included in Lua or LuaJIT
+#define LUA_OK 0
 #define luaL_checklfunction(L, idx) \
     luaL_argcheck(L, lua_isfunction(L, idx) && \
-                    !lua_iscfunction(L, idx), \
-                    idx, "Lua function expected")
+                  !lua_iscfunction(L, idx), \
+                  idx, "Lua function expected")
 
 // Metatable of event objects
 #define SOURCELUA_EVENT_OBJECT_KEY \

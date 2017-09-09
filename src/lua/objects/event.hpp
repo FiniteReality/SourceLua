@@ -19,3 +19,4 @@ int luaopen_event_wrapper(lua_State* L);
 }
 
 #endif /* _objevent_hpp_ */
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

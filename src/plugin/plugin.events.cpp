@@ -29,21 +29,21 @@ bool Plugin::Load(CreateInterfaceFn interfaceFactory,
     ConnectTier2Libraries(&interfaceFactory, 1);
 
     _engine = static_cast<IVEngineServer*>(
-        interfaceFactory(INTERFACEVERSION_VENGINESERVER, nullptr)
-    );
+                  interfaceFactory(INTERFACEVERSION_VENGINESERVER, nullptr)
+              );
     _eventManager = static_cast<IGameEventManager2*>(
-        interfaceFactory(INTERFACEVERSION_GAMEEVENTSMANAGER2, nullptr)
-    );
+                        interfaceFactory(INTERFACEVERSION_GAMEEVENTSMANAGER2, nullptr)
+                    );
 
     if (_engine == nullptr)
     {
-        LogMessage<LogLevel::Error> ("Failed to get instance of engine");
+        LogMessage<LogLevel::Error>("Failed to get instance of engine");
         return false;
     }
 
     if (_eventManager == nullptr)
     {
-        LogMessage<LogLevel::Error> (
+        LogMessage<LogLevel::Error>(
             "Failed to get instance of event manager");
         return false;
     }
@@ -91,7 +91,7 @@ void Plugin::SetCommandClient(int index)
 
 void Plugin::GameFrame(bool simulating)
 {
-    _gameTickEvent->Fire([&](lua_State* L)
+    _gameTickEvent->Fire([&](lua_State * L)
     {
         lua_pushboolean(L, simulating ? 1 : 0);
         return 1;
@@ -104,11 +104,11 @@ void Plugin::Pause()
 }
 void Plugin::UnPause()
 {
-    _pauseEvent->Fire();
+    _unPauseEvent->Fire();
 }
 void Plugin::LevelInit(char const* mapName)
 {
-    _levelChangingEvent->Fire([&](lua_State* L)
+    _levelChangingEvent->Fire([&](lua_State * L)
     {
         lua_pushstring(L, mapName);
         return 1;
@@ -117,13 +117,14 @@ void Plugin::LevelInit(char const* mapName)
 void Plugin::ServerActivate(edict_t* pEdictList, int edictCount,
                             int clientMax)
 {
-    _levelChangedEvent->Fire([&](lua_State* L)
+    _levelChangedEvent->Fire([&](lua_State * L)
     {
         lua_createtable(L, edictCount, 0);
 
         // TODO: is this safe? we could possibly read invalid memory this way
         int i;
         edict_t* edict;
+
         for (i = 0, edict = pEdictList; i < edictCount; i++, edict++)
         {
             lua_pushinteger(L, _engine->IndexOfEdict(edict));
@@ -141,8 +142,12 @@ PLUGIN_RESULT Plugin::ClientConnect(bool* allowConnect,
                                     const char* ipAddress, char* reject,
                                     int maxRejectLen)
 {
-    (void)allowConnect;(void)pEntity;(void)pName;
-    (void)ipAddress;(void)reject;(void)maxRejectLen;
+    (void)allowConnect;
+    (void)pEntity;
+    (void)pName;
+    (void)ipAddress;
+    (void)reject;
+    (void)maxRejectLen;
     return PLUGIN_CONTINUE;
 }
 void Plugin::ClientActive(edict_t* pEntity)
@@ -156,7 +161,8 @@ void Plugin::ClientDisconnect(edict_t* pEntity)
 void Plugin::ClientPutInServer(edict_t* pEntity,
                                char const* playerName)
 {
-    (void)pEntity;(void)playerName;
+    (void)pEntity;
+    (void)playerName;
 }
 void Plugin::ClientSettingsChanged(edict_t* pEntity)
 {
@@ -165,13 +171,15 @@ void Plugin::ClientSettingsChanged(edict_t* pEntity)
 PLUGIN_RESULT Plugin::ClientCommand(edict_t* pEntity,
                                     const CCommand& args)
 {
-    (void)pEntity;(void)args;
+    (void)pEntity;
+    (void)args;
     return PLUGIN_CONTINUE;
 }
 PLUGIN_RESULT Plugin::NetworkIDValidated(const char* pName,
         const char* networkId)
 {
-    (void)pName;(void)networkId;
+    (void)pName;
+    (void)networkId;
     return PLUGIN_CONTINUE;
 }
 void Plugin::OnQueryCvarValueFinished(QueryCvarCookie_t iCookie,
@@ -179,7 +187,11 @@ void Plugin::OnQueryCvarValueFinished(QueryCvarCookie_t iCookie,
                                       EQueryCvarValueStatus eStatus,
                                       const char* name, const char* value)
 {
-    (void)iCookie;(void)pEntity;(void)eStatus;(void)name;(void)value;
+    (void)iCookie;
+    (void)pEntity;
+    (void)eStatus;
+    (void)name;
+    (void)value;
 }
 void Plugin::OnEdictAllocated(edict_t* edict)
 {

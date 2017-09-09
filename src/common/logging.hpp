@@ -1,8 +1,10 @@
 #ifndef _logging_hpp_
 #define _logging_hpp_
 
+#include <sstream>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 
 #include <common/source.hpp>
 #include <common/version.hpp>
@@ -19,15 +21,8 @@ enum class LogLevel
 };
 
 template <LogLevel L, typename... TArgs>
-void LogMessage(const char* fmt, TArgs... args)
+void LogMessage(std::string fmt, TArgs... args)
 {
-    // TODO: figure out how to make these constant conditions
-    if (fmt == nullptr)
-        throw new std::runtime_error("format string must not be NULL");
-
-    if (strlen(fmt) == 0)
-        throw new std::runtime_error("fmt must contain something to output");
-
     std::string line_prefix {"[" SOURCELUA_NAME " "};
 
     switch (L)
@@ -53,23 +48,24 @@ void LogMessage(const char* fmt, TArgs... args)
             break;
     }
 
-    std::string msg {line_prefix};
-    msg.append(fmt);
+    if (fmt.back() == '\n')
+        fmt.pop_back();
 
-    if (msg.back() != '\n') // append final newline if not present
-        msg.append("\n");
+    std::ostringstream output;
+    std::string::size_type i = 0;
 
-    std::string::size_type prefix_len = line_prefix.length();
-    std::string::size_type offset = 0;
-    std::string::size_type i = msg.find("\n", offset);
-
-    while (i != std::string::npos && i < msg.length() - 1)
+    while (i != std::string::npos)
     {
-        msg.insert(i + 1, line_prefix);
-        offset += i + prefix_len + 1;
-        i = msg.find("\n", offset);
+        auto newi = fmt.find("\n", i+1);
+        if (fmt[i] == '\n')
+            i++;
+
+        output << line_prefix << fmt.substr(i, newi-i) << '\n';
+        i = newi;
     }
 
+    // we need to do it this way so that the buffer isn't deallocated
+    std::string msg = output.str();
     Msg(msg.c_str(), args...);
 }
 }

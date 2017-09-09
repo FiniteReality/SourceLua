@@ -27,11 +27,13 @@ class Script
         void Run(const char* code);
         void Run(const char* code, size_t length);
 
+        const char* name() const;
+
     private:
         lua_State* _L;
         lua_State* _T;
         int thread_ref;
-        const char* _name;
+        std::string _name;
 };
 
 }

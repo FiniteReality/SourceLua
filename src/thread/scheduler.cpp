@@ -8,9 +8,11 @@
 #include <thread>
 
 #include <common/logging.hpp>
+#include <lua/error_handler.hpp>
 #include <thread/scheduler.hpp>
 
 using namespace SourceLua;
+using namespace SourceLua::Lua;
 using namespace SourceLua::Threading;
 using namespace std;
 using namespace tbb;
@@ -52,6 +54,7 @@ void Scheduler::Stop()
     // N.B. this approach spawns a new thread to do the work of waiting
     // Is there a better way to do this?
     auto future = async(launch::async, &thread::join, &scheduler_thread);
+
     if (future.wait_for(chrono::seconds(5)) == future_status::timeout)
     {
         throw new runtime_error("Could not abort scheduler thread");
@@ -68,7 +71,8 @@ static void TaskThread(lua_State* L) noexcept
     while (scheduler_running)
     {
         std::unique_lock<std::mutex> lk(scheduler_lock);
-        scheduler_condition.wait(lk, []{
+        scheduler_condition.wait(lk, []
+        {
             return !(scheduler_running && scheduler_tasks.empty());
         });
 
@@ -83,6 +87,7 @@ static void TaskThread(lua_State* L) noexcept
             .count();
 
         unique_ptr<Task> task;
+
         if (scheduler_tasks.try_pop(task))
         {
             if (task->ready == nullptr || task->ready(task.get(), now))
@@ -97,30 +102,38 @@ static void TaskThread(lua_State* L) noexcept
                 lua_rawgeti(L, -1, task->thread_reference);
                 lua_State* T = lua_tothread(L, -1);
 
-                int argCount = 0;
+                int status = lua_status(T);
 
-                if (task->pushArgs != nullptr)
-                    argCount = task->pushArgs(T);
-
-                // TODO: check status before resuming
-                int status = lua_resume(T, argCount);
-
-                // TODO: this should be moved to an error handler
-                const char* message = "Unknown Error";
-                if (status != 0 && status != LUA_YIELD)
+                if (status == LUA_YIELD || status == LUA_OK)
                 {
-                    if (lua_isstring(T, -1))
-                        message = lua_tostring(T, -1);
+                    if (status == LUA_OK &&
+                            lua_type(T, lua_gettop(T)) != LUA_TFUNCTION)
+                    {
+                        LogMessage<LogLevel::Warning>(
+                            "Tried to resume an invalid task");
+                        continue;
+                    }
+
+                    int argCount = 0;
+
+                    if (task->pushArgs != nullptr)
+                        argCount = task->pushArgs(T);
+
+                    status = lua_resume(T, argCount);
+
+                    if (status != LUA_OK && status != LUA_YIELD)
+                    {
+                        Errors::HandleError(T, status);
+                    }
+
+                    LogMessage<LogLevel::Debug>(
+                        "lua_resume gave status %d",
+                        status);
+
+                    lua_pop(L, 1);
+                    luaL_unref(L, -1, task->thread_reference);
+                    lua_pop(L, 1);
                 }
-
-                LogMessage<LogLevel::Debug>(
-                    "lua_resume gave status %d (%s)",
-                    status,
-                    message);
-
-                lua_pop(L, 1);
-                luaL_unref(L, -1, task->thread_reference);
-                lua_pop(L, 1);
             }
             else
             {
@@ -130,3 +143,4 @@ static void TaskThread(lua_State* L) noexcept
         }
     }
 }
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;

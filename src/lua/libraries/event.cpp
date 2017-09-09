@@ -12,14 +12,14 @@ struct EventWrapper
 
 };
 
-static tbb::concurrent_unordered_map<const std::string, Event*> event_registry;
+static tbb::concurrent_unordered_map<std::string, Event*> event_registry;
 
 // TODO: create a better interface for this which allows disconnecting too
 
 int GetEvent(lua_State* L)
 {
     const char* name = luaL_checkstring(L, 1);
-    luaL_checklfunction(L, 2);
+    //luaL_checklfunction(L, 2);
 
     auto itr = event_registry.find(name);
 

@@ -52,6 +52,24 @@ int EventEqual(lua_State* L)
     return 1;
 }
 
+int EventTostring(lua_State* L)
+{
+    EventWrapper* wrapper =
+        checkUData(L, 1, SOURCELUA_EVENT_OBJECT_KEY, EventWrapper);
+    lua_pushfstring(L, "Event '%s'", wrapper->event->name.c_str());
+    return 1;
+}
+
+int ConnectionTostring(lua_State* L)
+{
+    ConnectionWrapper* wrapper =
+        checkUData(L, 1, SOURCELUA_CONNECTION_OBJECT_KEY, ConnectionWrapper);
+
+    lua_pushfstring(L, "Connection for event '%s'",
+                    wrapper->event->name.c_str());
+    return 1;
+}
+
 
 int ConnectEvent(lua_State* L)
 {
@@ -74,24 +92,29 @@ int DisconnectEvent(lua_State* L)
 }
 
 
-static luaL_Reg event_metamethods[] = {
+static luaL_Reg event_metamethods[] =
+{
     /*
      * Getting an event object returns a new wrapper each time, so we overwrite
      * __eq to check the underlying event object instead
      */
     {"__eq", EventEqual},
+    {"__tostring", EventTostring},
     {nullptr, nullptr}
 };
-static luaL_Reg connection_metamethods[] = {
-    // We shouldn't need any special metamethods here
+static luaL_Reg connection_metamethods[] =
+{
+    {"__tostring", ConnectionTostring},
     {nullptr, nullptr}
 };
 
-static luaL_Reg event_methods[] = {
+static luaL_Reg event_methods[] =
+{
     {"connect", ConnectEvent},
     {nullptr, nullptr}
 };
-static luaL_Reg connection_methods[] = {
+static luaL_Reg connection_methods[] =
+{
     {"disconnect", DisconnectEvent},
     {nullptr, nullptr}
 };
@@ -125,3 +148,4 @@ int Objects::luaopen_event_wrapper(lua_State* L)
 
     return 0;
 }
+// kate: indent-mode cstyle; indent-width 4; replace-tabs on;
