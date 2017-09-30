@@ -1,11 +1,6 @@
 #include <lua/event.hpp>
+#include <lua/objects/common.hpp>
 #include <lua/objects/event.hpp>
-
-#define newUData(L, type) \
-    static_cast<type*>(lua_newuserdata(L, sizeof(type)))
-
-#define checkUData(L, idx, name, type) \
-    static_cast<type*>(luaL_checkudata(L, idx, name))
 
 using namespace SourceLua::Lua;
 

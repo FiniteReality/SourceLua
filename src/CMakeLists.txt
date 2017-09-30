@@ -1,5 +1,7 @@
-include(luajit)
 include(source_sdk)
+include(luajit)
+
+find_package(TBB REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${LUAJIT_INCLUDE_DIR})
