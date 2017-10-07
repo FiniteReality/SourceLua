@@ -2,7 +2,7 @@ version: 2.0
 jobs:
   build:
     docker:
-      - image: gitjiro/sourcelua
+      - image: finitereality/sourcelua
     steps:
       - checkout
       - run:
