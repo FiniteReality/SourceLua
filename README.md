@@ -1,6 +1,6 @@
 # SourceLua: Integrating Lua with Source #
 
-This is some temporary text until the repo is setup. Probably.
+A plugin for Source which integrates the power of LuaJIT into your servers.
 
 ## This project is still a work in progress. ##
 
