@@ -1,5 +1,7 @@
 # SourceLua: Integrating Lua with Source #
 
+[![CircleCI](https://circleci.com/gh/FiniteReality/SourceLua/tree/master.svg?style=svg)](https://circleci.com/gh/FiniteReality/SourceLua/tree/master)
+
 A plugin for Source which integrates the power of LuaJIT into your servers.
 
 ## This project is still a work in progress. ##
