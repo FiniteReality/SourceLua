@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-gcc -m32 "$@"
+${OLD_CC:-gcc} -m32 "$@"

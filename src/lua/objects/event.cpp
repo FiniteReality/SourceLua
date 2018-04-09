@@ -1,29 +1,18 @@
 #include <lua/event.hpp>
 #include <lua/objects/common.hpp>
-#include <lua/objects/event.hpp>
 
 using namespace SourceLua::Lua;
 
-struct EventWrapper
-{
-    Event* event;
-};
-
-struct ConnectionWrapper
+struct Connection
 {
     Event* event;
     int ref;
 };
 
-void PushEvent(lua_State* L, Event* event)
-{
-    EventWrapper* wrapper = newUData(L, EventWrapper);
+using LuaEvent = Objects::ClassDefinition<Event>;
+using LuaConnection = Objects::ClassDefinition<Connection>;
 
-    wrapper->event = event;
-    luaL_getmetatable(L, SOURCELUA_EVENT_OBJECT_KEY);
-    lua_setmetatable(L, -2);
-}
-
+/*
 void PushConnection(lua_State* L, Event* event, int ref)
 {
     ConnectionWrapper* wrapper = newUData(L, ConnectionWrapper);
@@ -34,113 +23,136 @@ void PushConnection(lua_State* L, Event* event, int ref)
     luaL_getmetatable(L, SOURCELUA_CONNECTION_OBJECT_KEY);
     lua_setmetatable(L, -2);
 }
-
+*/
 
 int EventEqual(lua_State* L)
 {
-    EventWrapper* lhs =
-        checkUData(L, 1, SOURCELUA_EVENT_OBJECT_KEY, EventWrapper);
-    EventWrapper* rhs =
-        checkUData(L, 2, SOURCELUA_EVENT_OBJECT_KEY, EventWrapper);
+    Event* lhs = LuaEvent::CheckValue(L, 1);
+    Event* rhs = LuaEvent::CheckValue(L, 2);
 
-    lua_pushboolean(L, lhs->event == rhs->event ? 1 : 0);
+    lua_pushboolean(L, (lhs == rhs) ? 1 : 0);
     return 1;
 }
 
 int EventTostring(lua_State* L)
 {
-    EventWrapper* wrapper =
-        checkUData(L, 1, SOURCELUA_EVENT_OBJECT_KEY, EventWrapper);
-    lua_pushfstring(L, "Event '%s'", wrapper->event->name.c_str());
+    Event* event = LuaEvent::CheckValue(L, 1);
+    lua_pushfstring(L, "Event '%s'", event->name.c_str());
     return 1;
 }
 
 int ConnectionTostring(lua_State* L)
 {
-    ConnectionWrapper* wrapper =
-        checkUData(L, 1, SOURCELUA_CONNECTION_OBJECT_KEY, ConnectionWrapper);
-
+    Connection* connection = LuaConnection::CheckValue(L, 1);
     lua_pushfstring(L, "Connection for event '%s'",
-                    wrapper->event->name.c_str());
+        connection->event->name.c_str());
     return 1;
+}
+
+int ConnectionDeallocate(lua_State* L)
+{
+    Connection* connection = LuaConnection::CheckValue(L, 1);
+    delete connection;
+    return 0;
 }
 
 
 int ConnectEvent(lua_State* L)
 {
-    EventWrapper* wrapper =
-        checkUData(L, 1, SOURCELUA_EVENT_OBJECT_KEY, EventWrapper);
+    Event* event = LuaEvent::CheckValue(L, 1);
+    Connection* connection = new Connection;
 
-    int ref = wrapper->event->Connect(L);
-    PushConnection(L, wrapper->event, ref);
+    connection->event = event;
+    connection->ref = event->Connect(L);
+
+    LuaConnection::PushValue(L, connection);
+
     return 1;
 }
 
 int DisconnectEvent(lua_State* L)
 {
-    ConnectionWrapper* wrapper =
-        checkUData(L, 1, SOURCELUA_CONNECTION_OBJECT_KEY, ConnectionWrapper);
+    Connection* connection = LuaConnection::CheckValue(L, 1);
 
-    bool success = wrapper->event->Disconnect(wrapper->ref);
+    bool success = connection->event->Disconnect(connection->ref);
     lua_pushboolean(L, success ? 1 : 0);
     return 1;
 }
 
+DEFINE_CLASS(
+    Event,
+    static void RegisterMetamethods(lua_State* L)
+    {
+        static luaL_Reg event_metamethods[] =
+        {
+            /*
+             * Getting an event object returns a new wrapper each time, so we overwrite
+             * __eq to check the underlying event object instead
+             */
+            {"__eq", EventEqual},
+            {"__tostring", EventTostring},
+            {nullptr, nullptr}
+        };
+        luaL_register(L, nullptr, event_metamethods);
+    };
+    static void RegisterMethods(lua_State* L)
+    {
+        static luaL_Reg event_methods[] =
+        {
+            {"connect", ConnectEvent},
+             {nullptr, nullptr}
+        };
+        luaL_register(L, nullptr, event_methods);
+    };
+)
 
-static luaL_Reg event_metamethods[] =
+namespace SourceLua
 {
-    /*
-     * Getting an event object returns a new wrapper each time, so we overwrite
-     * __eq to check the underlying event object instead
-     */
-    {"__eq", EventEqual},
-    {"__tostring", EventTostring},
-    {nullptr, nullptr}
-};
-static luaL_Reg connection_metamethods[] =
+namespace Lua
 {
-    {"__tostring", ConnectionTostring},
-    {nullptr, nullptr}
-};
+namespace Objects
+{
+    template <>
+    void ClassDefinition<Event>::RegisterType(lua_State* L)
+    {
+        luaL_newmetatable(L, type_name::name);
 
-static luaL_Reg event_methods[] =
-{
-    {"connect", ConnectEvent},
-    {nullptr, nullptr}
-};
-static luaL_Reg connection_methods[] =
-{
-    {"disconnect", DisconnectEvent},
-    {nullptr, nullptr}
-};
+        methods::RegisterMetamethods(L);
 
+        lua_pushliteral(L, "This metatable is locked");
+        lua_setfield(L, -2, "__metatable");
 
-int Objects::WrapEvent(lua_State* L, Event* event)
-{
-    PushEvent(L, event);
-    return 1;
+        lua_newtable(L);
+        methods::RegisterMethods(L);
+        lua_setfield(L, -2, "__index");
+
+        LuaConnection::RegisterType(L);
+    }
+}
+}
 }
 
-int Objects::luaopen_event_wrapper(lua_State* L)
-{
-    luaL_newmetatable(L, SOURCELUA_EVENT_OBJECT_KEY);
-    luaL_register(L, nullptr, event_metamethods);
-    lua_pushliteral(L, "This metatable is locked");
-    lua_setfield(L, -2, "__metatable");
+DEFINE_CLASS(
+    Connection,
+    static void RegisterMetamethods(lua_State* L)
+    {
+        static luaL_Reg connection_metamethods[] =
+        {
+            {"__tostring", ConnectionTostring},
+            {"__gc", ConnectionDeallocate},
+            {nullptr, nullptr}
+        };
+        luaL_register(L, nullptr, connection_metamethods);
+    };
+    static void RegisterMethods(lua_State* L)
+    {
+        static luaL_Reg connection_methods[] =
+        {
+            {"disconnect", DisconnectEvent},
+            {nullptr, nullptr}
+        };
+        luaL_register(L, nullptr, connection_methods);
+    };
+)
 
-    lua_newtable(L);
-    luaL_register(L, nullptr, event_methods);
-    lua_setfield(L, -2, "__index");
-
-    luaL_newmetatable(L, SOURCELUA_CONNECTION_OBJECT_KEY);
-    luaL_register(L, nullptr, connection_metamethods);
-    lua_pushliteral(L, "This metatable is locked");
-    lua_setfield(L, -2, "__metatable");
-
-    lua_newtable(L);
-    luaL_register(L, nullptr, connection_methods);
-    lua_setfield(L, -2, "__index");
-
-    return 0;
-}
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on;

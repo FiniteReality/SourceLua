@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-g++ -m32 "$@"
+${OLD_CXX:-g++} -m32 "$@"

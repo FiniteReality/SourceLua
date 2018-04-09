@@ -8,14 +8,6 @@
 using namespace SourceLua;
 using namespace SourceLua::Lua;
 
-/*
- #define LUA_YIELD  1
- #define LUA_ERRRUN 2
- #define LUA_ERRSYNTAX  3
- #define LUA_ERRMEM 4
- #define LUA_ERRERR 5
-*/
-
 void HandleRuntimeError(lua_State* L);
 void HandleSyntaxError(lua_State* L);
 void HandleMemoryError(lua_State* L);

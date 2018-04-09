@@ -1,134 +1,77 @@
 #include <lua/objects/common.hpp>
-#include <lua/objects/edict.hpp>
+
+#include <edict.h>
 
 using namespace SourceLua::Lua;
 
-struct EdictWrapper
-{
-    edict_t* edict;
-};
-
-void PushEdict(lua_State* L, edict_t* edict)
-{
-    EdictWrapper* wrapper = newUData(L, EdictWrapper);
-
-    wrapper->edict = edict;
-    luaL_getmetatable(L, SOURCELUA_EVENT_OBJECT_KEY);
-    lua_setmetatable(L, -2);
-}
+using LuaEdict = Objects::ClassDefinition<edict_t>;
 
 int EdictEqual(lua_State* L)
 {
-    auto* lhs =
-        checkUData(L, 1, SOURCELUA_EDICT_OBJECT_KEY, EdictWrapper);
-    auto* rhs =
-        checkUData(L, 2, SOURCELUA_EDICT_OBJECT_KEY, EdictWrapper);
+    edict_t* lhs = LuaEdict::CheckValue(L, 1);
+    edict_t* rhs = LuaEdict::CheckValue(L, 2);
 
-    lua_pushboolean(L, lhs->edict == rhs->edict ? 1 : 0);
+    // TODO: is this correct? should we check entity index too?
+    lua_pushboolean(L, lhs == rhs ? 1 : 0);
     return 1;
 }
 
 int EdictTostring(lua_State* L)
 {
-    auto* wrapper =
-        checkUData(L, 1, SOURCELUA_EDICT_OBJECT_KEY, EdictWrapper);
+    edict_t* edict = LuaEdict::CheckValue(L, 1);
 
-    lua_pushstring(L, wrapper->edict->GetClassName());
+    lua_pushstring(L, edict->GetClassName());
     return 1;
 }
 
-
-int EdictFree(lua_State* L)
-{
-    auto* wrapper =
-        checkUData(L, 1, SOURCELUA_EDICT_OBJECT_KEY, EdictWrapper);
-    wrapper->edict->SetFree();
-    return 0;
-}
 int EdictIsFree(lua_State* L)
 {
-    auto* wrapper =
-        checkUData(L, 1, SOURCELUA_EDICT_OBJECT_KEY, EdictWrapper);
+    edict_t* edict = LuaEdict::CheckValue(L, 1);
 
-    lua_pushboolean(L, wrapper->edict->IsFree() ? 1 : 0);
+    lua_pushboolean(L, edict->IsFree() ? 1 : 0);
     return 1;
 }
 int EdictGetFreeTime(lua_State* L)
 {
-    auto* wrapper =
-        checkUData(L, 1, SOURCELUA_EDICT_OBJECT_KEY, EdictWrapper);
+    edict_t* edict = LuaEdict::CheckValue(L, 1);
 
-    lua_pushnumber(L, wrapper->edict->freetime);
-    return 1;
-}
-
-int EdictChangeState(lua_State* L)
-{
-    auto* wrapper =
-        checkUData(L, 1, SOURCELUA_EDICT_OBJECT_KEY, EdictWrapper);
-
-    wrapper->edict->StateChanged();
-    return 0;
-}
-int EdictIsStateChanged(lua_State* L)
-{
-    auto* wrapper =
-        checkUData(L, 1, SOURCELUA_EDICT_OBJECT_KEY, EdictWrapper);
-
-    lua_pushboolean(L, wrapper->edict->HasStateChanged() ? 1 : 0);
+    lua_pushnumber(L, edict->freetime);
     return 1;
 }
 
 int EdictGetClassName(lua_State* L)
 {
-    auto* wrapper =
-    checkUData(L, 1, SOURCELUA_EDICT_OBJECT_KEY, EdictWrapper);
+    edict_t* edict = LuaEdict::CheckValue(L, 1);
 
-    lua_pushstring(L, wrapper->edict->GetClassName());
+    lua_pushstring(L, edict->GetClassName());
     return 1;
 }
 
+DEFINE_CLASS(
+    edict_t,
+    static void RegisterMetamethods(lua_State* L)
+    {
+        static luaL_Reg[] metamethods{
+            {"__eq", EdictEqual},
+            {"__tostring", EdictTostring},
+            {nullptr, nullptr}
+        };
 
-static luaL_Reg edict_metamethods[] =
-{
-    {"__eq", EdictEqual},
-    {"__tostring", EdictTostring},
-    {nullptr, nullptr}
-};
+        luaL_register(L, nullptr, metamethods);
+    };
+    static void RegisterMethods(lua_State* L)
+    {
+        static luaL_Reg methods[]{
+            {"isFree", EdictIsFree},
 
-static luaL_Reg edict_methods[] =
-{
-    {"free", EdictFree},
-    {"changeState", EdictChangeState},
+            {"getFreeTime", EdictGetFreeTime},
+            {"getClassName", EdictGetClassName},
 
-    {"isFree", EdictIsFree},
-    {"isStateChanged", EdictIsStateChanged},
+            {nullptr, nullptr}
+        };
 
-    {"getFreeTime", EdictGetFreeTime},
-    {"getClassName", EdictGetClassName},
-
-    {nullptr, nullptr}
-};
-
-
-int Objects::WrapEdict(lua_State* L, edict_t* edict)
-{
-    PushEdict(L, edict);
-    return 1;
-}
-
-int Objects::luaopen_edict_wrapper(lua_State* L)
-{
-    luaL_newmetatable(L, SOURCELUA_EDICT_OBJECT_KEY);
-    luaL_register(L, nullptr, edict_metamethods);
-    lua_pushliteral(L, "This metatable is locked");
-    lua_setfield(L, -2, "__metatable");
-
-    lua_newtable(L);
-    luaL_register(L, nullptr, edict_methods);
-    lua_setfield(L, -2, "__index");
-
-    return 0;
-}
+        luaL_register(L, nullptr, methods);
+    };
+)
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on;

@@ -16,16 +16,6 @@
                   !lua_iscfunction(L, idx), \
                   idx, "Lua function expected")
 
-// Metatable of event objects
-#define SOURCELUA_EVENT_OBJECT_KEY \
-    STR(SOURCELUA_NAME) "_event_object"
-// Metatable of event connection objects
-#define SOURCELUA_CONNECTION_OBJECT_KEY \
-    STR(SOURCELUA_NAME) "_connection_object"
-// Metatable of edict objects
-#define SOURCELUA_EDICT_OBJECT_KEY \
-    STR(SOURCELUA_NAME) "_edict_object"
-
 // Table of functions used as callbacks to events
 #define SOURCELUA_EVENT_CACHE_KEY \
     STR(SOURCELUA_NAME) "_event_cache"

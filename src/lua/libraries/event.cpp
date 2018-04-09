@@ -1,31 +1,25 @@
 #include <stdexcept>
 #include <tbb/concurrent_unordered_map.h>
 
+#include <lua/objects/common.hpp>
 #include <lua/libraries/event.hpp>
-#include <lua/objects/event.hpp>
 
 using namespace SourceLua::Lua;
 
-struct EventWrapper
-{
-    Event* event;
-
-};
+using LuaEvent = Objects::ClassDefinition<Event>;
 
 static tbb::concurrent_unordered_map<std::string, Event*> event_registry;
-
-// TODO: create a better interface for this which allows disconnecting too
 
 int GetEvent(lua_State* L)
 {
     const char* name = luaL_checkstring(L, 1);
-    //luaL_checklfunction(L, 2);
 
     auto itr = event_registry.find(name);
 
     if (itr != event_registry.end())
     {
-        return Objects::WrapEvent(L, itr->second);
+        LuaEvent::PushValue(L, itr->second);
+        return 1;
     }
 
     return luaL_error(L, "No event with the name '%s'", name);
@@ -40,7 +34,7 @@ static luaL_Reg event_funcs[] =
 
 int Libraries::luaopen_event(lua_State* L)
 {
-    Objects::luaopen_event_wrapper(L);
+    LuaEvent::RegisterType(L);
     luaL_register(L, "event", event_funcs);
     return 1;
 }

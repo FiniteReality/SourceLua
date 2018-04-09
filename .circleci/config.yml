@@ -10,7 +10,7 @@ jobs:
           command: git submodule sync && git submodule update --init
       - run:
           name: patch source SDK 2013
-          command: pushd source-sdk-2013 && git apply ../patches/source-sdk-2013.patch
+          command: pushd thirdparty/source-sdk-2013 && git apply ../../patches/source-sdk-2013.patch
       - run:
           name: build
           command: mkdir -p build && pushd build && cmake .. && make

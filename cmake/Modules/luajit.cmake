@@ -1,16 +1,22 @@
 include(ExternalProject)
 
+set(LUAJIT_BASE_DIR "${CMAKE_SOURCE_DIR}/thirdparty/luajit-2.0")
+# Force LuaJIT to build 32-bit
+set(LUAJIT_C_COMPILER "${CMAKE_C_COMPILER} -m32")
+
+mark_as_advanced(LUAJIT_BASE_DIR LUAJIT_C_COMPILER)
+
 ExternalProject_Add(luajit
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/luajit-2.0"
-    BINARY_DIR "${CMAKE_SOURCE_DIR}/luajit-2.0/src"
+    SOURCE_DIR "${LUAJIT_BASE_DIR}"
+    BINARY_DIR "${LUAJIT_BASE_DIR}/src"
     GIT_SUBMODULES luajit-2.0
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
     PATCH_COMMAND ""
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND $(MAKE) CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER}
+    BUILD_COMMAND $(MAKE) CC=${LUAJIT_C_COMPILER}
     INSTALL_COMMAND ""
     TEST_COMMAND "")
 
-set(LUAJIT_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/luajit-2.0/src")
-set(LUAJIT_LIBRARIES "${CMAKE_SOURCE_DIR}/luajit-2.0/src/libluajit.a")
+set(LUAJIT_INCLUDE_DIR "${LUAJIT_BASE_DIR}/src")
+set(LUAJIT_LIBRARIES "${LUAJIT_BASE_DIR}/src/libluajit.a")

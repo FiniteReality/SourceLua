@@ -1,7 +1,10 @@
 include(ExternalProject)
 
+# TODO: make this a SourceLua option instead
 set(SOURCE_SDK_PLATFORM "mp")
-set(SOURCE_SDK_BASE_DIR "${CMAKE_SOURCE_DIR}/source-sdk-2013/${SOURCE_SDK_PLATFORM}")
+set(SOURCE_SDK_BASE_DIR "${CMAKE_SOURCE_DIR}/thirdparty/source-sdk-2013/${SOURCE_SDK_PLATFORM}")
+
+mark_as_advanced(SOURCE_SDK_BASE_DIR)
 
 set(SOURCE_SDK_INCLUDE_DIRS
     "${SOURCE_SDK_BASE_DIR}/src"
