@@ -15,27 +15,26 @@ namespace Lua
 class Event
 {
     public:
-        Event(lua_State* L, const std::string name);
-        // Does not support copy or move operations
+        Event(const std::string name);
+
         Event(const Event&) = delete;
         Event& operator=(const Event&) = delete;
-        Event(Event&&) = delete;
-        Event& operator=(Event &&) = delete;
-        ~Event();
+
+        Event(Event&&) = default;
+        Event& operator=(Event &&) = default;
+
+        ~Event() = default;
 
         void Fire(std::function<int(lua_State*)> pushArgs = nullptr);
 
         int Connect(lua_State* L);
-        bool Disconnect(int ref);
+        bool Disconnect(lua_State* L, int ref);
 
-        const std::string name;
+        inline const std::string name() const { return _name; };
 
     private:
-
-        lua_State* GetThread();
-
         std::unordered_set<int> _connections;
-        lua_State* _L;
+        std::string _name;
 };
 
 }

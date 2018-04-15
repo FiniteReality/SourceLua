@@ -3,7 +3,11 @@
 
 #include <memory>
 
-#include <common/source.hpp>
+#include <source/eiface.hpp>
+#include <source/igameevents.hpp>
+#include <source/tier1/interface.hpp>
+#include <source/engine/iserverplugin.hpp>
+
 #include <lua/event.hpp>
 #include <thread/scheduler.hpp>
 
@@ -70,7 +74,7 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
         void SetCommandClient(int index) override;
         int GetCommandIndex();
 
-        const char* RunLuaString(const char* code);
+        void RunLuaString(const char* code);
 #ifdef SOURCELUA_DEBUG
         void CausePanic();
 #endif /* SOURCELUA_DEBUG */
@@ -82,11 +86,11 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
 
         std::unique_ptr<lua_State, std::function<void(lua_State*)>> _G;
 
-        std::unique_ptr<Lua::Event> _gameTickEvent;
-        std::unique_ptr<Lua::Event> _levelChangingEvent;
-        std::unique_ptr<Lua::Event> _levelChangedEvent;
-        std::unique_ptr<Lua::Event> _pauseEvent;
-        std::unique_ptr<Lua::Event> _unPauseEvent;
+        Lua::Event& _gameTickEvent;
+        Lua::Event& _levelChangingEvent;
+        Lua::Event& _levelChangedEvent;
+        Lua::Event& _pauseEvent;
+        Lua::Event& _unPauseEvent;
 
         IVEngineServer* _engine;
         IGameEventManager2* _eventManager;

@@ -1,8 +1,13 @@
 #include <stdexcept>
 
+#include <source/tier1/tier1.hpp>
+#include <source/tier2/tier2.hpp>
+
 #include <common/luajit.hpp>
 #include <common/logging.hpp>
 #include <common/version.hpp>
+
+#include <lua/objects/common.hpp>
 #include <lua/script.hpp>
 #include <plugin/plugin.hpp>
 
@@ -15,7 +20,7 @@ Plugin* Plugin::GetActiveInstance()
 {
     if (PLUGIN == nullptr)
     {
-        throw new std::runtime_error("Plugin not initialized yet!");
+        throw std::runtime_error{"Plugin not initialized yet!"};
     }
 
     return PLUGIN;
@@ -91,7 +96,7 @@ void Plugin::SetCommandClient(int index)
 
 void Plugin::GameFrame(bool simulating)
 {
-    _gameTickEvent->Fire([&](lua_State * L)
+    _gameTickEvent.Fire([&](lua_State * L)
     {
         lua_pushboolean(L, simulating ? 1 : 0);
         return 1;
@@ -100,15 +105,15 @@ void Plugin::GameFrame(bool simulating)
 
 void Plugin::Pause()
 {
-    _pauseEvent->Fire();
+    _pauseEvent.Fire();
 }
 void Plugin::UnPause()
 {
-    _unPauseEvent->Fire();
+    _unPauseEvent.Fire();
 }
 void Plugin::LevelInit(char const* mapName)
 {
-    _levelChangingEvent->Fire([&](lua_State * L)
+    _levelChangingEvent.Fire([&](lua_State * L)
     {
         lua_pushstring(L, mapName);
         return 1;
@@ -117,7 +122,7 @@ void Plugin::LevelInit(char const* mapName)
 void Plugin::ServerActivate(edict_t* pEdictList, int edictCount,
                             int clientMax)
 {
-    _levelChangedEvent->Fire([&](lua_State * L)
+    _levelChangedEvent.Fire([&](lua_State * L)
     {
         lua_createtable(L, edictCount, 0);
 
@@ -127,7 +132,7 @@ void Plugin::ServerActivate(edict_t* pEdictList, int edictCount,
 
         for (i = 0, edict = pEdictList; i < edictCount; i++, edict++)
         {
-            lua_pushinteger(L, _engine->IndexOfEdict(edict));
+            Lua::Objects::ClassDefinition<edict_t>::PushValue(L, edict);
             lua_rawseti(L, -2, i + 1);
         }
 

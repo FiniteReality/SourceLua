@@ -6,7 +6,7 @@
 #include <string>
 #include <type_traits>
 
-#include <common/source.hpp>
+#include <source/tier0/dbg.hpp>
 #include <common/version.hpp>
 
 namespace SourceLua

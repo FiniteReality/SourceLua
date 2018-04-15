@@ -1,6 +1,8 @@
+#include <source/tier1/interface.hpp>
+
 #include <common/logging.hpp>
-#include <common/source.hpp>
 #include <common/version.hpp>
+
 #include <plugin/plugin.hpp>
 
 using namespace SourceLua;

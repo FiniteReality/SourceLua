@@ -134,6 +134,10 @@ static void TaskThread(lua_State* L) noexcept
                     luaL_unref(L, -1, task->thread_reference);
                     lua_pop(L, 1);
                 }
+                else
+                {
+                    Errors::HandleError(L, status);
+                }
             }
             else
             {

@@ -3,33 +3,35 @@
 #include <common/luajit.hpp>
 #include <common/logging.hpp>
 #include <common/version.hpp>
+
 #include <lua/script.hpp>
-#include <plugin/plugin.hpp>
+
+#include <lua/objects/common.hpp>
 
 #include <lua/libraries/console.hpp>
 #include <lua/libraries/event.hpp>
 #include <lua/libraries/thread.hpp>
+
+#include <plugin/plugin.hpp>
 
 namespace SourceLua
 {
 
 Plugin::Plugin()
     : _G{luaL_newstate(), [](lua_State* L){ lua_close(L); }},
-    _gameTickEvent{new Lua::Event{_G.get(), "gameTicked"}},
-    _levelChangingEvent{new Lua::Event{_G.get(), "levelChanging"}},
-    _levelChangedEvent{new Lua::Event{_G.get(), "levelChanged"}},
-    _pauseEvent{new Lua::Event{_G.get(), "paused"}},
-    _unPauseEvent{new Lua::Event{_G.get(), "unpaused"}}
+    _gameTickEvent{Lua::Libraries::get_event("gameTicked")},
+    _levelChangingEvent{Lua::Libraries::get_event("levelChanging")},
+    _levelChangedEvent{Lua::Libraries::get_event("levelChanged")},
+    _pauseEvent{Lua::Libraries::get_event("paused")},
+    _unPauseEvent{Lua::Libraries::get_event("unpaused")}
 {
 }
 
-const char* Plugin::RunLuaString(const char* code)
+void Plugin::RunLuaString(const char* code)
 {
-    Lua::Script script {_G.get(), "console"};
+    Lua::Script console{_G.get(), "console"};
 
-    script.Run(code);
-
-    return nullptr;
+    console.Run(code);
 }
 
 #ifdef SOURCELUA_DEBUG
@@ -43,13 +45,10 @@ void Plugin::CausePanic()
 
 int luaopen_plugin(lua_State* _G)
 {
-    luaopen_base(_G);
-    luaopen_bit(_G);
-    luaopen_math(_G);
-    // TODO: should we disable this? it may allow malicious package loading
-    luaopen_package(_G);
-    luaopen_string(_G);
-    luaopen_table(_G);
+    luaL_openlibs(_G);
+
+    Lua::Objects::ClassDefinition<edict_t>::RegisterType(_G);
+    Lua::Objects::ClassDefinition<Lua::Event>::RegisterType(_G);
 
     Lua::Libraries::luaopen_console(_G);
     Lua::Libraries::luaopen_event(_G);

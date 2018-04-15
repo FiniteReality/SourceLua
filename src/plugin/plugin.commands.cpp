@@ -23,12 +23,7 @@ CON_COMMAND(sl_eval, "Evaluate Lua code")
         return;
     }
 
-    const char* msg = plugin->RunLuaString(args.ArgS());
-
-    if (msg != nullptr)
-    {
-        LogMessage<LogLevel::Warning>("Lua error: %s\n", msg);
-    }
+    plugin->RunLuaString(args.ArgS());
 }
 
 #ifdef SOURCELUA_DEBUG

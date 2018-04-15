@@ -7,22 +7,19 @@
 using namespace SourceLua::Lua;
 
 using LuaEvent = Objects::ClassDefinition<Event>;
+using EventRegistry = tbb::concurrent_unordered_map<std::string, Event>;
 
-static tbb::concurrent_unordered_map<std::string, Event*> event_registry;
+static EventRegistry event_map;
 
 int GetEvent(lua_State* L)
 {
     const char* name = luaL_checkstring(L, 1);
 
-    auto itr = event_registry.find(name);
+    Event& event = Libraries::get_event(name);
 
-    if (itr != event_registry.end())
-    {
-        LuaEvent::PushValue(L, itr->second);
-        return 1;
-    }
+    LuaEvent::PushValue(L, &event);
 
-    return luaL_error(L, "No event with the name '%s'", name);
+    return 1;
 }
 
 static luaL_Reg event_funcs[] =
@@ -34,29 +31,28 @@ static luaL_Reg event_funcs[] =
 
 int Libraries::luaopen_event(lua_State* L)
 {
-    LuaEvent::RegisterType(L);
     luaL_register(L, "event", event_funcs);
     return 1;
 }
 
-void Libraries::register_event(const std::string name, Event* event)
+Event& Libraries::get_event(const std::string name)
 {
-    bool success;
-    std::tie(std::ignore, success) = event_registry
-        .emplace(name, event);
+    EventRegistry::const_iterator iter = event_map.find(name);
 
-    if (!success)
-        throw std::runtime_error("an event with this name already exists");
+    if (iter != event_map.end())
+    {
+        return iter->second;
+    }
+    else
+    {
+        bool success;
+        std::tie(iter, success) = event_map.emplace(name, Event{name});
+
+        if (success)
+            return iter->second;
+        else
+            throw std::runtime_error{"Failed to construct event type"};
+    }
 }
-
-void Libraries::deregister_event(const std::string name)
-{
-    /* N.B. deregister_event is only called in Event's destructor in Plugin,
-     * this should be fine, assuming only one thread tries to destruct the
-     * plugin.
-     */
-    event_registry.unsafe_erase(name);
-}
-
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on;

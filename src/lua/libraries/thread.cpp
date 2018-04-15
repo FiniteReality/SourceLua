@@ -33,7 +33,7 @@ static const luaL_Reg thread_funcs[] =
 {
     {"sleep", Sleep},
     {"spawn", Spawn},
-    {NULL, NULL}
+    {nullptr, nullptr}
 };
 
 int Libraries::luaopen_thread(lua_State* L)

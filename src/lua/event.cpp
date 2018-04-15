@@ -6,15 +6,9 @@
 
 using namespace SourceLua::Lua;
 
-Event::Event(lua_State* L, const std::string _name)
-    : name(_name), _connections(), _L(L)
+Event::Event(const std::string name)
+    : _connections(), _name(name)
 {
-    Libraries::register_event(name, this);
-}
-
-Event::~Event()
-{
-    Libraries::deregister_event(name);
 }
 
 void Event::Fire(std::function<int(lua_State*)> pushArgs)
@@ -40,9 +34,19 @@ int Event::Connect(lua_State* L)
     return ref;
 }
 
-bool Event::Disconnect(int ref)
+bool Event::Disconnect(lua_State* L, int ref)
 {
-    return _connections.erase(ref) > 0;
+    bool result = _connections.erase(ref) > 0;
+
+    if (result)
+    {
+        lua_getfield(L, LUA_REGISTRYINDEX, SOURCELUA_EVENT_CACHE_KEY);
+        luaL_unref(L, -1, ref);
+
+        lua_pop(L, 1);
+    }
+
+    return result;
 }
 
 

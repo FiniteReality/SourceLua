@@ -1,3 +1,5 @@
+#include <source/tier1/convar.hpp>
+
 #include <plugin/plugin.hpp>
 
 // TODO: decide how to expose these to parts of the plugin

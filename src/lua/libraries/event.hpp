@@ -12,8 +12,7 @@ namespace Libraries
 {
 
 int luaopen_event(lua_State* L);
-void register_event(const std::string name, Event* event);
-void deregister_event(const std::string name);
+Event& get_event(const std::string name);
 
 }
 }

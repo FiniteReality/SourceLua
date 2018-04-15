@@ -1,6 +1,6 @@
-#include <lua/objects/common.hpp>
+#include <source/edict.hpp>
 
-#include <edict.h>
+#include <lua/objects/common.hpp>
 
 using namespace SourceLua::Lua;
 
@@ -47,31 +47,35 @@ int EdictGetClassName(lua_State* L)
     return 1;
 }
 
-DEFINE_CLASS(
-    edict_t,
-    static void RegisterMetamethods(lua_State* L)
+
+
+DEFINE_CLASS_METAMETHODS(edict_t,
+{
+    static luaL_Reg edict_metamethods[] =
     {
-        static luaL_Reg[] metamethods{
-            {"__eq", EdictEqual},
-            {"__tostring", EdictTostring},
-            {nullptr, nullptr}
-        };
-
-        luaL_register(L, nullptr, metamethods);
+        {"__eq", EdictEqual},
+        {"__tostring", EdictTostring},
+        {nullptr, nullptr}
     };
-    static void RegisterMethods(lua_State* L)
+
+    luaL_register(L, nullptr, edict_metamethods);
+})
+
+DEFINE_CLASS_METHODS(edict_t,
+{
+    static luaL_Reg edict_methods[] =
     {
-        static luaL_Reg methods[]{
-            {"isFree", EdictIsFree},
+        {"isFree", EdictIsFree},
 
-            {"getFreeTime", EdictGetFreeTime},
-            {"getClassName", EdictGetClassName},
+        {"getFreeTime", EdictGetFreeTime},
+        {"getClassName", EdictGetClassName},
 
-            {nullptr, nullptr}
-        };
-
-        luaL_register(L, nullptr, methods);
+        {nullptr, nullptr}
     };
-)
+
+    luaL_register(L, nullptr, edict_methods);
+})
+
+DEFINE_CLASS_NAME(edict_t, "edict")
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs on;
