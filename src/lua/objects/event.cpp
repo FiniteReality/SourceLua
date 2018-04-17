@@ -1,5 +1,6 @@
 #include <lua/event.hpp>
-#include <lua/objects/common.hpp>
+
+#include "common.hpp"
 
 using namespace SourceLua::Lua;
 

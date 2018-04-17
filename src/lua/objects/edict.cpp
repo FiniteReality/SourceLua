@@ -1,6 +1,6 @@
 #include <source/edict.hpp>
 
-#include <lua/objects/common.hpp>
+#include "common.hpp"
 
 using namespace SourceLua::Lua;
 

@@ -7,6 +7,7 @@
 #include <common/logging.hpp>
 #include <common/version.hpp>
 
+#include <lua/libraries/event.hpp>
 #include <lua/objects/common.hpp>
 #include <lua/script.hpp>
 #include <plugin/plugin.hpp>
@@ -206,9 +207,17 @@ void Plugin::OnEdictFreed(const edict_t* edict)
 {
     (void)edict;
 }
-void Plugin::FireGameEvent(KeyValues* event)
+void Plugin::FireGameEvent(IGameEvent* event)
 {
-    (void)event;
+    LogMessage<LogLevel::Debug>("Firing event %s", event->GetName());
+
+    auto& luaEvent = Lua::Libraries::GetEvent(event->GetName());
+    luaEvent.Fire([event](lua_State* L)
+    {
+        // HACK: we should deserialize to a table instead of passing the event
+        Lua::Objects::ClassDefinition<IGameEvent>::PushValue(L, event);
+        return 1;
+    });
 }
 
 }

@@ -19,12 +19,17 @@ namespace SourceLua
 
 Plugin::Plugin()
     : _G{luaL_newstate(), [](lua_State* L){ lua_close(L); }},
-    _gameTickEvent{Lua::Libraries::get_event("gameTicked")},
-    _levelChangingEvent{Lua::Libraries::get_event("levelChanging")},
-    _levelChangedEvent{Lua::Libraries::get_event("levelChanged")},
-    _pauseEvent{Lua::Libraries::get_event("paused")},
-    _unPauseEvent{Lua::Libraries::get_event("unpaused")}
+    _gameTickEvent{Lua::Libraries::GetEvent("game_ticked")},
+    _levelChangingEvent{Lua::Libraries::GetEvent("level_changing")},
+    _levelChangedEvent{Lua::Libraries::GetEvent("level_changed")},
+    _pauseEvent{Lua::Libraries::GetEvent("paused")},
+    _unPauseEvent{Lua::Libraries::GetEvent("unpaused")}
 {
+}
+
+IGameEventManager2* Plugin::GetEventManager()
+{
+    return _eventManager;
 }
 
 void Plugin::RunLuaString(const char* code)
@@ -49,6 +54,7 @@ int luaopen_plugin(lua_State* _G)
 
     Lua::Objects::ClassDefinition<edict_t>::RegisterType(_G);
     Lua::Objects::ClassDefinition<Lua::Event>::RegisterType(_G);
+    Lua::Objects::ClassDefinition<IGameEvent>::RegisterType(_G);
 
     Lua::Libraries::luaopen_console(_G);
     Lua::Libraries::luaopen_event(_G);

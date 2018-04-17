@@ -4,6 +4,8 @@
 #include <lua/objects/common.hpp>
 #include <lua/libraries/event.hpp>
 
+#include <plugin/plugin.hpp>
+
 using namespace SourceLua::Lua;
 
 using LuaEvent = Objects::ClassDefinition<Event>;
@@ -15,16 +17,29 @@ int GetEvent(lua_State* L)
 {
     const char* name = luaL_checkstring(L, 1);
 
-    Event& event = Libraries::get_event(name);
+    Event& event = Libraries::GetEvent(name);
 
     LuaEvent::PushValue(L, &event);
 
     return 1;
 }
 
+int SubscribeEvent(lua_State* L)
+{
+    const char* name = luaL_checkstring(L, 1);
+    auto* plugin = SourceLua::Plugin::GetActiveInstance();
+    auto* eventManager = plugin->GetEventManager();
+
+    if (!eventManager->FindListener(plugin, name))
+        eventManager->AddListener(plugin, name, true);
+
+    return 0;
+}
+
 static luaL_Reg event_funcs[] =
 {
     {"get", GetEvent},
+    {"subscribe", SubscribeEvent},
     {nullptr, nullptr}
 };
 
@@ -35,7 +50,7 @@ int Libraries::luaopen_event(lua_State* L)
     return 1;
 }
 
-Event& Libraries::get_event(const std::string name)
+Event& Libraries::GetEvent(const std::string name)
 {
     EventRegistry::const_iterator iter = event_map.find(name);
 

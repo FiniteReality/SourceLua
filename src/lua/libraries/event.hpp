@@ -12,7 +12,7 @@ namespace Libraries
 {
 
 int luaopen_event(lua_State* L);
-Event& get_event(const std::string name);
+Event& GetEvent(const std::string name);
 
 }
 }

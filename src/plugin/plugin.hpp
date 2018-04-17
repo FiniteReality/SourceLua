@@ -14,7 +14,7 @@
 namespace SourceLua
 {
 
-class Plugin : public IServerPluginCallbacks, public IGameEventListener
+class Plugin : public IServerPluginCallbacks, public IGameEventListener2
 {
     public:
         Plugin();
@@ -25,6 +25,7 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
         ~Plugin() = default;
 
         static Plugin* GetActiveInstance();
+        IGameEventManager2* GetEventManager();
 
         bool Load(CreateInterfaceFn interfaceFactory,
                   CreateInterfaceFn gameServerFactory) override;
@@ -69,7 +70,7 @@ class Plugin : public IServerPluginCallbacks, public IGameEventListener
         void OnEdictAllocated(edict_t* edict) override;
         void OnEdictFreed(const edict_t* edict) override;
 
-        void FireGameEvent(KeyValues* event) override;
+        void FireGameEvent(IGameEvent* event) override;
 
         void SetCommandClient(int index) override;
         int GetCommandIndex();
