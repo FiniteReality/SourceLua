@@ -1,6 +1,8 @@
 #ifndef _libluaevent_hpp_
 #define _libluaevent_hpp_
 
+#include <source/igameevents.hpp>
+
 #include <common/luajit.hpp>
 #include <lua/event.hpp>
 
@@ -13,6 +15,8 @@ namespace Libraries
 
 int luaopen_event(lua_State* L);
 Event& GetEvent(const std::string name);
+void PushGameEvent(lua_State* L,
+    IGameEvent* event);
 
 }
 }

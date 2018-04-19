@@ -211,11 +211,16 @@ void Plugin::FireGameEvent(IGameEvent* event)
 {
     LogMessage<LogLevel::Debug>("Firing event %s", event->GetName());
 
-    auto& luaEvent = Lua::Libraries::GetEvent(event->GetName());
-    luaEvent.Fire([event](lua_State* L)
+    // Use a shared ptr here because multiple threads may access us
+    IGameEvent* eventCopy = GetEventManager()->DuplicateEvent(event);
+    std::shared_ptr<IGameEvent> sharedEvent{eventCopy, [this](auto p) {
+        this->GetEventManager()->FreeEvent(p);
+    }};
+
+    auto& luaEvent = Lua::Libraries::GetEvent(sharedEvent->GetName());
+    luaEvent.Fire([sharedEvent](lua_State* L)
     {
-        // HACK: we should deserialize to a table instead of passing the event
-        Lua::Objects::ClassDefinition<IGameEvent>::PushValue(L, event);
+        Lua::Libraries::PushGameEvent(L, sharedEvent.get());
         return 1;
     });
 }

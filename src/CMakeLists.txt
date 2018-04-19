@@ -14,7 +14,7 @@ lua/error_handler.cpp lua/event.cpp lua/script.cpp
 
 lua/libraries/console.cpp lua/libraries/event.cpp lua/libraries/thread.cpp
 
-lua/objects/event.cpp lua/objects/edict.cpp lua/objects/game_event.cpp
+lua/objects/event.cpp lua/objects/edict.cpp
 
 plugin/plugin.commands.cpp plugin/plugin.cvars.cpp plugin/plugin.events.cpp
 plugin/plugin.cpp

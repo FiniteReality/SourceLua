@@ -54,7 +54,6 @@ int luaopen_plugin(lua_State* _G)
 
     Lua::Objects::ClassDefinition<edict_t>::RegisterType(_G);
     Lua::Objects::ClassDefinition<Lua::Event>::RegisterType(_G);
-    Lua::Objects::ClassDefinition<IGameEvent>::RegisterType(_G);
 
     Lua::Libraries::luaopen_console(_G);
     Lua::Libraries::luaopen_event(_G);
