@@ -4,6 +4,8 @@
 
 A plugin for Source which integrates the power of LuaJIT into your servers.
 
+Feel free to join my Discord server: https://discord.gg/Y4d9ZWJ
+
 ## This project is still a work in progress. ##
 
 Do not expect to be able to use it to write your next server plugin right
